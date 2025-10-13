@@ -7,19 +7,12 @@ import { SettingsModal } from "@/components/settings-modal"
 import { FloatingVoiceWidget } from "@/components/floating-voice-widget"
 import { useToast } from "@/hooks/use-toast"
 import { SettingsStore } from "@/lib/settings-store"
-
-interface Transcript {
-  id: number
-  file: string
-  text: string
-  date: string
-}
+import useVoiceStore from "@/lib/voice-store"
+import "@/lib/test-store-sync"
 
 export default function Home() {
   const [showSettings, setShowSettings] = useState(false)
-  const [isListening, setIsListening] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [audioLevel, setAudioLevel] = useState(0.5)
+  const [floatingWindowVisible, setFloatingWindowVisible] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const audioContextRef = useRef<AudioContext | null>(null)
@@ -27,33 +20,30 @@ export default function Home() {
   const animationFrameRef = useRef<number | null>(null)
   const { toast } = useToast()
 
-  const [transcripts, setTranscripts] = useState<Transcript[]>([
-    {
-      id: 1,
-      file: "record_001.wav",
-      text: "This is a test transcription of the first recording. The voice widget is working perfectly and capturing audio as expected.",
-      date: "Oct 13, 2025",
-    },
-    {
-      id: 2,
-      file: "record_002.wav",
-      text: "Voice widget prototype is working great! The floating UI appears smoothly and the equalizer bars respond to audio levels in real-time.",
-      date: "Oct 13, 2025",
-    },
-    {
-      id: 3,
-      file: "record_003.wav",
-      text: "Testing the dashboard integration with multiple transcription entries to see how the grid layout handles various content lengths.",
-      date: "Oct 12, 2025",
-    },
-  ])
+  // Use the synchronized store instead of local state
+  const {
+    isListening,
+    isProcessing,
+    audioLevel,
+    transcripts,
+    setIsListening,
+    setIsProcessing,
+    setAudioLevel,
+    addTranscript,
+    deleteTranscript,
+  } = useVoiceStore()
 
   const ensureFloatingWindow = async () => {
     const tauri = (window as any).__TAURI__
-    if (!tauri?.invoke) return
+    if (!tauri?.invoke) {
+      console.warn('Tauri API not available')
+      return
+    }
     
     try {
+      console.log('Attempting to show floating widget...')
       await tauri.invoke('show_floating_widget')
+      console.log('Floating widget shown successfully')
     } catch (error) {
       console.error('Failed to show floating widget:', error)
     }
@@ -92,26 +82,40 @@ export default function Home() {
       const form = new FormData()
       form.append("file", blob, `record_${Date.now()}.webm`)
       form.append("apiKey", apiKey)
-      const res = await fetch("/api/transcribe", { method: "POST", body: form })
-      const data = await res.json()
       
-      if (data.text) {
-        await navigator.clipboard.writeText(data.text)
+      try {
+        const res = await fetch("/api/transcribe", { method: "POST", body: form })
+        
+        if (!res.ok) {
+          throw new Error(`API request failed with status: ${res.status}`)
+        }
+        
+        const data = await res.json()
+        
+        if (data.text) {
+          await navigator.clipboard.writeText(data.text)
+        }
+        
+        const newTranscript = {
+          file: `record_${String(transcripts.length + 1).padStart(3, "0")}.webm`,
+          text: data.text || "",
+          date: new Date().toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+        }
+        addTranscript(newTranscript)
+        toast({ title: "Transcribed & copied", description: "Text copied to clipboard." })
+      } catch (error) {
+        console.error("Transcription error:", error)
+        toast({ 
+          title: "Transcription failed", 
+          description: error instanceof Error ? error.message : "Unknown error occurred" 
+        })
+      } finally {
+        setIsProcessing(false)
       }
-      
-      const newTranscript: Transcript = {
-        id: Date.now(),
-        file: `record_${String(transcripts.length + 1).padStart(3, "0")}.webm`,
-        text: data.text || "",
-        date: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-      }
-      setTranscripts((prev) => [newTranscript, ...prev])
-      toast({ title: "Transcribed & copied", description: "Text copied to clipboard." })
-      setIsProcessing(false)
     }
 
     mediaRecorder.start(100)
@@ -168,13 +172,67 @@ export default function Home() {
     })()
   }
 
-  // Handle Alt + M push-to-talk recording
+  // Handle global Alt+M shortcut
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleGlobalKeyDown = async (e: KeyboardEvent) => {
       if (e.altKey && (e.key === "m" || e.key === "M")) {
         e.preventDefault()
-        if (!isListening && !isProcessing) startRecording()
+        console.log('Alt+M pressed globally')
+        
+        try {
+          const { getCurrentWindow, WebviewWindow } = await import('@tauri-apps/api/window')
+          
+          // Always create a new window for simplicity
+          const floatingWindow = new WebviewWindow('floating', {
+            url: '/floating',
+            title: 'Voice Widget',
+            width: 190,
+            height: 64,
+            alwaysOnTop: true,
+            decorations: false,
+            transparent: true,
+            skipTaskbar: true,
+            resizable: false,
+          })
+
+          floatingWindow.once('tauri://created', () => {
+            console.log('Voice widget window created')
+            setFloatingWindowVisible(true)
+            // Start recording when window is created
+            if (!isListening && !isProcessing) {
+              startRecording()
+            }
+          })
+
+          floatingWindow.once('tauri://error', (e) => {
+            console.error('Error creating window:', e)
+          })
+        } catch (error) {
+          console.error('Failed to handle global shortcut:', error)
+          // Fallback: try to use the existing Tauri invoke method
+          try {
+            await ensureFloatingWindow()
+            if (!isListening && !isProcessing) {
+              startRecording()
+            }
+          } catch (fallbackError) {
+            console.error('Fallback method also failed:', fallbackError)
+          }
+        }
       }
+    }
+
+    // Add global event listener
+    document.addEventListener('keydown', handleGlobalKeyDown)
+    
+    return () => {
+      document.removeEventListener('keydown', handleGlobalKeyDown)
+    }
+  }, [isListening, isProcessing, startRecording, floatingWindowVisible])
+
+  // Handle Alt + M push-to-talk recording (now handled by global shortcut)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && (isListening || isProcessing)) {
         e.preventDefault()
         stopRecording()
@@ -207,7 +265,7 @@ export default function Home() {
   }
 
   const handleDeleteTranscript = (id: number) => {
-    setTranscripts((prev) => prev.filter((t) => t.id !== id))
+    deleteTranscript(id)
     toast({
       title: "Transcript deleted",
       description: "The recording has been removed.",
@@ -227,7 +285,7 @@ export default function Home() {
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2">Your Transcriptions</h2>
           <p className="text-muted-foreground">
-            Press <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Alt + M</kbd> to start a new recording
+            Press <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Alt + M</kbd> globally to show the voice widget and start recording
           </p>
         </div>
 

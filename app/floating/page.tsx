@@ -1,12 +1,22 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { FloatingVoiceWidget } from "@/components/floating-voice-widget"
+import useVoiceStore from "@/lib/voice-store"
 
 export default function FloatingPage() {
-  const [isListening, setIsListening] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [audioLevel, setAudioLevel] = useState(0.5)
+  // Use the synchronized store instead of local state
+  const {
+    isListening,
+    isProcessing,
+    audioLevel,
+    setIsListening,
+    setIsProcessing,
+    setAudioLevel,
+  } = useVoiceStore()
+
+  // Debug logging
+  console.log('Floating page rendered with state:', { isListening, isProcessing, audioLevel })
 
   useEffect(() => {
     const unsubs: Array<() => void> = []
@@ -28,7 +38,7 @@ export default function FloatingPage() {
     return () => {
       unsubs.forEach((u) => u())
     }
-  }, [])
+  }, [setIsListening, setIsProcessing, setAudioLevel])
 
   return (
     <div 

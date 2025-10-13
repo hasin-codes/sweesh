@@ -52,6 +52,9 @@ pub fn run() {
             .build(),
         )?;
       }
+
+      // Global shortcut will be handled in the frontend
+
       Ok(())
     })
     .run(tauri::generate_context!())
