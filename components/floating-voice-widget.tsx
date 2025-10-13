@@ -48,7 +48,7 @@ export function FloatingVoiceWidget({
 
   return (
     <div
-      className="fixed bottom-16 right-0 z-[99999] animate-in fade-in slide-in-from-bottom-2 duration-300"
+      className="w-full h-full flex items-center justify-center animate-in fade-in slide-in-from-bottom-2 duration-300"
       style={{
         width: "190px",
         height: "64px",

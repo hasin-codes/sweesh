@@ -25,35 +25,20 @@ export default function FloatingPage() {
       } catch {}
     })()
 
-    // Simple drag move
-    let moving = false
-    const down = () => (moving = true)
-    const up = () => (moving = false)
-    const move = async (e: MouseEvent) => {
-      if (!moving) return
-      try {
-        await tauri?.window?.appWindow?.setPosition({ x: e.screenX, y: e.screenY })
-      } catch {}
-    }
-    document.addEventListener("mousedown", down)
-    document.addEventListener("mouseup", up)
-    document.addEventListener("mousemove", move)
-
     return () => {
       unsubs.forEach((u) => u())
-      document.removeEventListener("mousedown", down)
-      document.removeEventListener("mouseup", up)
-      document.removeEventListener("mousemove", move)
     }
   }, [])
 
   return (
-    <FloatingVoiceWidget
-      isListening={isListening}
-      isProcessing={isProcessing}
-      audioLevel={audioLevel}
-      onCancel={() => setIsListening(false)}
-    />
+    <div className="w-full h-full bg-transparent">
+      <FloatingVoiceWidget
+        isListening={isListening}
+        isProcessing={isProcessing}
+        audioLevel={audioLevel}
+        onCancel={() => setIsListening(false)}
+      />
+    </div>
   )
 }
 

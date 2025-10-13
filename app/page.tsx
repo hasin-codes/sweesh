@@ -50,42 +50,13 @@ export default function Home() {
 
   const ensureFloatingWindow = async () => {
     const tauri = (window as any).__TAURI__
-    if (!tauri?.window) return
+    if (!tauri?.invoke) return
     
     try {
-      const existing = await tauri.window.getAll?.()
-      const found = existing?.find((w: any) => w.label === "floating")
-      
-      if (!found) {
-        const { WebviewWindow } = tauri.window
-        const floatingWindow = new WebviewWindow("floating", {
-          url: "/floating",
-          title: "Voice Widget",
-          decorations: false,
-          transparent: true,
-          alwaysOnTop: true,
-          width: 190,
-          height: 64,
-          resizable: false,
-          skipTaskbar: true,
-        })
-        
-        // Position to right side of screen after window is created
-        setTimeout(async () => {
-          try {
-            const mon = await tauri.window.currentMonitor?.()
-            if (mon?.size) {
-              const x = Math.max(0, mon.size.width - 200) // 190 width + margin
-              const y = Math.max(0, Math.floor(mon.size.height / 2 - 32))
-              await floatingWindow.setPosition({ x, y })
-            }
-          } catch {}
-        }, 100)
-      } else {
-        await found.show?.()
-        await found.setFocus?.()
-      }
-    } catch {}
+      await tauri.invoke('show_floating_widget')
+    } catch (error) {
+      console.error('Failed to show floating widget:', error)
+    }
   }
 
   const startRecording = async () => {
@@ -188,9 +159,12 @@ export default function Home() {
     ;(async () => {
       try {
         const tauri = (window as any).__TAURI__
-        const win = await tauri?.window?.getWindow?.("floating")
-        await win?.hide?.()
-      } catch {}
+        if (tauri?.invoke) {
+          await tauri.invoke('hide_floating_widget')
+        }
+      } catch (error) {
+        console.error('Failed to hide floating widget:', error)
+      }
     })()
   }
 
