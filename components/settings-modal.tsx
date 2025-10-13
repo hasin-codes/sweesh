@@ -1,11 +1,13 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
+import { SettingsStore } from "@/lib/settings-store"
 
 interface SettingsModalProps {
   onClose: () => void
@@ -13,6 +15,24 @@ interface SettingsModalProps {
 
 export function SettingsModal({ onClose }: SettingsModalProps) {
   const { toast } = useToast()
+  const [apiKey, setApiKey] = useState("")
+  const [autoSave, setAutoSave] = useState(false)
+  const [darkMode, setDarkMode] = useState(false)
+  const [saveLocation, setSaveLocation] = useState("")
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      const store = SettingsStore.getInstance()
+      const settings = await store.loadSettings()
+      setApiKey(settings.apiKey)
+      setAutoSave(settings.autoSave)
+      setDarkMode(settings.darkMode)
+      setSaveLocation(settings.saveLocation)
+      setLoading(false)
+    }
+    loadSettings()
+  }, [])
 
   const requestMicPermission = async () => {
     try {
@@ -33,9 +53,9 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
   const openOsMicSettings = async () => {
     try {
       // Tauri shell deep link to Windows mic settings; no-op on web
-      // @ts-ignore
-      if (window.__TAURI__?.shell?.open) {
-        await window.__TAURI__.shell.open("ms-settings:privacy-microphone")
+      const tauri = (window as any).__TAURI__
+      if (tauri?.shell?.open) {
+        await tauri.shell.open("ms-settings:privacy-microphone")
       } else {
         // Fallback: try to navigate (may be blocked by browser)
         window.location.href = "ms-settings:privacy-microphone"
@@ -43,6 +63,18 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
     } catch (err) {
       toast({ title: "Unable to open settings", description: "Open Settings > Privacy > Microphone manually." })
     }
+  }
+
+  const handleSave = async () => {
+    const store = SettingsStore.getInstance()
+    await store.saveSettings({
+      apiKey,
+      autoSave,
+      darkMode,
+      saveLocation,
+    })
+    toast({ title: "Settings saved", description: "Your preferences have been saved." })
+    onClose()
   }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -61,12 +93,26 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="api-key">Whisper API Key</Label>
-            <Input id="api-key" type="password" placeholder="Enter your Whisper API key" />
+            <Input 
+              id="api-key" 
+              type="password" 
+              placeholder="Enter your Whisper API key"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              disabled={loading}
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="save-location">File Save Location</Label>
-            <Input id="save-location" type="text" placeholder="Choose local directory" />
+            <Input 
+              id="save-location" 
+              type="text" 
+              placeholder="Choose local directory"
+              value={saveLocation}
+              onChange={(e) => setSaveLocation(e.target.value)}
+              disabled={loading}
+            />
           </div>
 
           <div className="flex items-center justify-between py-2">
@@ -74,7 +120,12 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
               <Label htmlFor="auto-save">Auto Save Audio Files</Label>
               <p className="text-xs text-muted-foreground">Automatically save recordings locally</p>
             </div>
-            <Switch id="auto-save" />
+            <Switch 
+              id="auto-save" 
+              checked={autoSave}
+              onCheckedChange={setAutoSave}
+              disabled={loading}
+            />
           </div>
 
           <div className="flex items-center justify-between py-2">
@@ -82,7 +133,12 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
               <Label htmlFor="dark-mode">Dark Mode</Label>
               <p className="text-xs text-muted-foreground">Toggle dark theme</p>
             </div>
-            <Switch id="dark-mode" />
+            <Switch 
+              id="dark-mode" 
+              checked={darkMode}
+              onCheckedChange={setDarkMode}
+              disabled={loading}
+            />
           </div>
 
           <div className="grid gap-2 pt-2">
@@ -95,7 +151,9 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={onClose}>Save Changes</Button>
+          <Button onClick={handleSave} disabled={loading}>
+            Save Changes
+          </Button>
         </div>
       </div>
     </div>

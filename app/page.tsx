@@ -6,6 +6,7 @@ import { TranscriptionCard } from "@/components/transcription-card"
 import { SettingsModal } from "@/components/settings-modal"
 import { FloatingVoiceWidget } from "@/components/floating-voice-widget"
 import { useToast } from "@/hooks/use-toast"
+import { SettingsStore } from "@/lib/settings-store"
 
 interface Transcript {
   id: number
@@ -47,160 +48,154 @@ export default function Home() {
     },
   ])
 
-  // Handle Alt + M push-to-talk recording
-  useEffect(() => {
-    const ensureFloatingWindow = async () => {
-      const tauri = (window as any).__TAURI__
-      if (!tauri?.window) return
+  const ensureFloatingWindow = async () => {
+    const tauri = (window as any).__TAURI__
+    if (!tauri?.window) return
+    
+    try {
       const existing = await tauri.window.getAll?.()
       const found = existing?.find((w: any) => w.label === "floating")
+      
       if (!found) {
-        new tauri.window.WebviewWindow("floating", {
+        const { WebviewWindow } = tauri.window
+        const floatingWindow = new WebviewWindow("floating", {
           url: "/floating",
           title: "Voice Widget",
           decorations: false,
           transparent: true,
           alwaysOnTop: true,
-          width: 96,
-          height: 96,
+          width: 190,
+          height: 64,
+          resizable: false,
+          skipTaskbar: true,
         })
+        
+        // Position to right side of screen after window is created
+        setTimeout(async () => {
+          try {
+            const mon = await tauri.window.currentMonitor?.()
+            if (mon?.size) {
+              const x = Math.max(0, mon.size.width - 200) // 190 width + margin
+              const y = Math.max(0, Math.floor(mon.size.height / 2 - 32))
+              await floatingWindow.setPosition({ x, y })
+            }
+          } catch {}
+        }, 100)
       } else {
         await found.show?.()
         await found.setFocus?.()
       }
-      // Position to right side of the primary screen
+    } catch {}
+  }
+
+  const startRecording = async () => {
+    if (mediaRecorderRef.current?.state === "recording") return
+    
+    const tauri = (window as any).__TAURI__
+    if (tauri?.invoke) {
+      await tauri.invoke('request_microphone_permission')
+    }
+    
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" })
+    mediaRecorderRef.current = mediaRecorder
+    audioChunksRef.current = []
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) audioChunksRef.current.push(event.data)
+    }
+
+    mediaRecorder.onstop = async () => {
+      const blob = new Blob(audioChunksRef.current, { type: "audio/webm" })
+      setIsProcessing(true)
+      
+      const store = SettingsStore.getInstance()
+      const apiKey = store.getApiKey()
+      
+      if (!apiKey) {
+        toast({ title: "API Key Required", description: "Please set your Whisper API key in settings." })
+        setIsProcessing(false)
+        return
+      }
+      
+      const form = new FormData()
+      form.append("file", blob, `record_${Date.now()}.webm`)
+      form.append("apiKey", apiKey)
+      const res = await fetch("/api/transcribe", { method: "POST", body: form })
+      const data = await res.json()
+      
+      if (data.text) {
+        await navigator.clipboard.writeText(data.text)
+      }
+      
+      const newTranscript: Transcript = {
+        id: Date.now(),
+        file: `record_${String(transcripts.length + 1).padStart(3, "0")}.webm`,
+        text: data.text || "",
+        date: new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+      }
+      setTranscripts((prev) => [newTranscript, ...prev])
+      toast({ title: "Transcribed & copied", description: "Text copied to clipboard." })
+      setIsProcessing(false)
+    }
+
+    mediaRecorder.start(100)
+    setIsListening(true)
+    await ensureFloatingWindow()
+    try { (window as any).__TAURI__?.event?.emit("voice:start") } catch {}
+
+    // Setup analyser for audio level visualization
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+    audioContextRef.current = audioContext
+    const source = audioContext.createMediaStreamSource(stream)
+    const analyser = audioContext.createAnalyser()
+    analyser.fftSize = 256
+    analyserRef.current = analyser
+    source.connect(analyser)
+
+    const dataArray = new Uint8Array(analyser.frequencyBinCount)
+    const updateLevel = () => {
+      analyser.getByteTimeDomainData(dataArray)
+      let sum = 0
+      for (let i = 0; i < dataArray.length; i++) {
+        const v = (dataArray[i] - 128) / 128
+        sum += v * v
+      }
+      const rms = Math.sqrt(sum / dataArray.length)
+      const level = Math.min(1, Math.max(0.1, rms * 2))
+      setAudioLevel(level)
+      try { (window as any).__TAURI__?.event?.emit("voice:level", level) } catch {}
+      animationFrameRef.current = requestAnimationFrame(updateLevel)
+    }
+    updateLevel()
+  }
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop()
+    }
+    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
+    if (audioContextRef.current) {
+      audioContextRef.current.close()
+      audioContextRef.current = null
+    }
+    setIsListening(false)
+    try { (window as any).__TAURI__?.event?.emit("voice:stop") } catch {}
+    ;(async () => {
       try {
-        const { currentMonitor } = tauri.window
-        const mon = await currentMonitor?.()
-        if (mon?.size) {
-          const x = Math.max(0, mon.size.width - 112) // 96 width + margin
-          const y = Math.max(0, Math.floor(mon.size.height / 2 - 48))
-          const win = await tauri.window.getWindow?.("floating")
-          await win?.setPosition({ x, y })
-        }
+        const tauri = (window as any).__TAURI__
+        const win = await tauri?.window?.getWindow?.("floating")
+        await win?.hide?.()
       } catch {}
-    }
+    })()
+  }
 
-    const startRecording = async () => {
-      if (mediaRecorderRef.current?.state === "recording") return
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-        const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" })
-        mediaRecorderRef.current = mediaRecorder
-        audioChunksRef.current = []
-
-        mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) audioChunksRef.current.push(event.data)
-        }
-
-        mediaRecorder.onstop = async () => {
-          const blob = new Blob(audioChunksRef.current, { type: "audio/webm" })
-          setIsProcessing(true)
-          try {
-            const form = new FormData()
-            form.append("file", blob, `record_${Date.now()}.webm`)
-            const res = await fetch("/api/transcribe", { method: "POST", body: form })
-            if (!res.ok) throw new Error("Transcription failed")
-            const data = await res.json()
-            // Auto-copy text to clipboard once received
-            try {
-              if (data.text) {
-                await navigator.clipboard.writeText(data.text)
-              }
-            } catch {
-              // ignore clipboard failures
-            }
-            const newTranscript: Transcript = {
-              id: Date.now(),
-              file: `record_${String(transcripts.length + 1).padStart(3, "0")}.webm`,
-              text: data.text || "",
-              date: new Date().toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              }),
-            }
-            setTranscripts((prev) => [newTranscript, ...prev])
-            toast({ title: "Transcribed & copied", description: "Text copied to clipboard." })
-          } catch (err: any) {
-            toast({ title: "Error", description: err?.message || "Failed to transcribe" })
-          } finally {
-            setIsProcessing(false)
-          }
-        }
-
-        mediaRecorder.start(100)
-        setIsListening(true)
-        await ensureFloatingWindow()
-        try { (window as any).__TAURI__?.event?.emit("voice:start") } catch {}
-
-        // Setup analyser for audio level visualization
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-        audioContextRef.current = audioContext
-        const source = audioContext.createMediaStreamSource(stream)
-        const analyser = audioContext.createAnalyser()
-        analyser.fftSize = 256
-        analyserRef.current = analyser
-        source.connect(analyser)
-
-        const dataArray = new Uint8Array(analyser.frequencyBinCount)
-        const updateLevel = () => {
-          analyser.getByteTimeDomainData(dataArray)
-          let sum = 0
-          for (let i = 0; i < dataArray.length; i++) {
-            const v = (dataArray[i] - 128) / 128
-            sum += v * v
-          }
-          const rms = Math.sqrt(sum / dataArray.length)
-          const level = Math.min(1, Math.max(0.1, rms * 2))
-          setAudioLevel(level)
-          try { (window as any).__TAURI__?.event?.emit("voice:level", level) } catch {}
-          animationFrameRef.current = requestAnimationFrame(updateLevel)
-        }
-        updateLevel()
-      } catch (err: any) {
-        toast({ title: "Mic permission error", description: err?.message || "Unable to record" })
-        // If permission is blocked, attempt to reset WebView permissions by clearing browsing data
-        ;(async () => {
-          try {
-            const tauri = (window as any).__TAURI__
-            if (tauri?.window?.getAll) {
-              const wins = await tauri.window.getAll()
-              for (const w of wins) {
-                await w.clearAllBrowsingData?.()
-              }
-            } else if (tauri?.window?.appWindow?.clearAllBrowsingData) {
-              await tauri.window.appWindow.clearAllBrowsingData()
-            }
-            toast({
-              title: "Permissions reset",
-              description: "Cache cleared. Try Alt+M again or restart the app.",
-            })
-          } catch {}
-        })()
-      }
-    }
-
-    const stopRecording = () => {
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-        mediaRecorderRef.current.stop()
-      }
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
-      if (audioContextRef.current) {
-        audioContextRef.current.close()
-        audioContextRef.current = null
-      }
-      setIsListening(false)
-      try { (window as any).__TAURI__?.event?.emit("voice:stop") } catch {}
-      ;(async () => {
-        try {
-          const tauri = (window as any).__TAURI__
-          const win = await tauri?.window?.getWindow?.("floating")
-          await win?.hide?.()
-        } catch {}
-      })()
-    }
-
+  // Handle Alt + M push-to-talk recording
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && (e.key === "m" || e.key === "M")) {
         e.preventDefault()
@@ -213,7 +208,7 @@ export default function Home() {
     }
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if ((e.key === "Alt" || e.key === "m" || e.key === "M") && isListening) {
+      if (e.key === "Alt" && isListening) {
         e.preventDefault()
         stopRecording()
       }
@@ -226,7 +221,7 @@ export default function Home() {
       window.removeEventListener("keydown", handleKeyDown)
       window.removeEventListener("keyup", handleKeyUp)
     }
-  }, [isListening, isProcessing, transcripts.length, toast])
+  }, [isListening, isProcessing])
 
   // audioLevel is updated from analyser during recording
 
@@ -270,15 +265,6 @@ export default function Home() {
       </main>
 
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
-
-      {(isListening || isProcessing) && (
-        <FloatingVoiceWidget
-          isListening={isListening}
-          isProcessing={isProcessing}
-          audioLevel={audioLevel}
-          onCancel={handleCancel}
-        />
-      )}
     </div>
   )
 }

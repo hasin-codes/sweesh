@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  // Remove static export to enable API routes
   trailingSlash: true,
-  // Ensure base path resolution in export (optional)
   images: { unoptimized: true },
   async redirects() {
     return [
