@@ -48,10 +48,13 @@ export function FloatingVoiceWidget({
 
   return (
     <div
-      className="w-full h-full flex items-center justify-center animate-in fade-in slide-in-from-bottom-2 duration-300"
+      className="w-full h-full flex items-center justify-center"
       style={{
         width: "190px",
         height: "64px",
+        backgroundColor: "transparent",
+        margin: 0,
+        padding: 0,
       }}
     >
       <div
@@ -62,7 +65,10 @@ export function FloatingVoiceWidget({
           borderTopRightRadius: "16px",
           borderBottomRightRadius: "16px",
           boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-          height: "100%",
+          height: "64px",
+          width: "190px",
+          minWidth: "190px",
+          minHeight: "64px",
         }}
       >
         {/* Left Orb */}

@@ -31,7 +31,14 @@ export default function FloatingPage() {
   }, [])
 
   return (
-    <div className="w-full h-full bg-transparent">
+    <div 
+      className="floating-widget-container w-full h-full bg-transparent flex items-center justify-center"
+      style={{
+        width: "190px",
+        height: "64px",
+        backgroundColor: "transparent",
+      }}
+    >
       <FloatingVoiceWidget
         isListening={isListening}
         isProcessing={isProcessing}

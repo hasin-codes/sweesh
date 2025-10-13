@@ -120,3 +120,17 @@
     @apply bg-background text-foreground font-sans;
   }
 }
+
+/* Floating window specific styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Ensure floating widget is visible */
+.floating-widget-container {
+  background: transparent !important;
+  margin: 0;
+  padding: 0;
+}
