@@ -34,26 +34,7 @@ const useVoiceStore = create<VoiceStore>((set, get) => ({
   isListening: false,
   isProcessing: false,
   audioLevel: 0.5,
-  transcripts: [
-    {
-      id: 1,
-      file: "record_001.wav",
-      text: "This is a test transcription of the first recording. The voice widget is working perfectly and capturing audio as expected.",
-      date: "Oct 13, 2025",
-    },
-    {
-      id: 2,
-      file: "record_002.wav",
-      text: "Voice widget prototype is working great! The floating UI appears smoothly and the equalizer bars respond to audio levels in real-time.",
-      date: "Oct 13, 2025",
-    },
-    {
-      id: 3,
-      file: "record_003.wav",
-      text: "Testing the dashboard integration with multiple transcription entries to see how the grid layout handles various content lengths.",
-      date: "Oct 12, 2025",
-    },
-  ],
+  transcripts: [],
 
   // Actions
   setIsListening: (isListening) => set({ isListening }),

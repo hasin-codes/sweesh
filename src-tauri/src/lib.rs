@@ -8,41 +8,51 @@ async fn request_microphone_permission() -> Result<bool, String> {
 }
 
 #[tauri::command]
-async fn show_floating_widget(app: tauri::AppHandle) -> Result<(), String> {
-  let window = app.get_webview_window("floating").ok_or("Floating window not found")?;
-  
-  // Position the window on the right side of the screen
-  if let Ok(monitor) = window.primary_monitor() {
+async fn show_voice_popup(app: tauri::AppHandle) -> Result<(), String> {
+  // Create a popup window for the voice widget
+  let popup = tauri::WebviewWindowBuilder::new(&app, "voice-popup", tauri::WebviewUrl::App("/voice-popup".into()))
+    .title("Voice Widget")
+    .inner_size(190.0, 64.0)
+    .decorations(false)
+    .transparent(true)
+    .always_on_top(true)
+    .resizable(false)
+    .skip_taskbar(true)
+    .build()
+    .map_err(|e| e.to_string())?;
+
+  // Position the popup near the bottom right of screen
+  if let Ok(monitor) = popup.primary_monitor() {
     if let Some(monitor) = monitor {
       let screen_width = monitor.size().width as f64;
       let screen_height = monitor.size().height as f64;
       let x = screen_width - 200.0; // 190 width + 10 margin
-      let y = (screen_height - 64.0) / 2.0; // Center vertically
-      let _ = window.set_position(tauri::Position::Logical(tauri::LogicalPosition::new(x, y)));
+      let y = screen_height - 100.0; // Near bottom of screen
+      let _ = popup.set_position(tauri::Position::Logical(tauri::LogicalPosition::new(x, y)));
     }
   }
-  window.show().map_err(|e| e.to_string())?;
-  window.set_focus().map_err(|e| e.to_string())?;
+  
+  popup.show().map_err(|e| e.to_string())?;
+  popup.set_focus().map_err(|e| e.to_string())?;
   Ok(())
 }
 
 #[tauri::command]
-async fn hide_floating_widget(app: tauri::AppHandle) -> Result<(), String> {
-  let window = app.get_webview_window("floating").ok_or("Floating window not found")?;
-  window.hide().map_err(|e| e.to_string())?;
+async fn hide_voice_popup(app: tauri::AppHandle) -> Result<(), String> {
+  if let Some(window) = app.get_webview_window("voice-popup") {
+    window.hide().map_err(|e| e.to_string())?;
+  }
   Ok(())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-  // no secondary window at startup; created on-demand from the frontend
-
   tauri::Builder::default()
     .plugin(tauri_plugin_store::Builder::default().build())
     .invoke_handler(tauri::generate_handler![
       request_microphone_permission,
-      show_floating_widget,
-      hide_floating_widget
+      show_voice_popup,
+      hide_voice_popup
     ])
     .setup(|app| {
       if cfg!(debug_assertions) {
@@ -52,8 +62,6 @@ pub fn run() {
             .build(),
         )?;
       }
-
-      // Global shortcut will be handled in the frontend
 
       Ok(())
     })

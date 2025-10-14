@@ -42,13 +42,26 @@ export function FloatingVoiceWidget({
       }
     }
 
+    const handleClickOutside = (e: MouseEvent) => {
+      // Hide popup when clicking outside
+      const target = e.target as HTMLElement
+      if (!target.closest('.floating-widget-container')) {
+        onCancel?.()
+      }
+    }
+
     window.addEventListener("keydown", handleEscape)
-    return () => window.removeEventListener("keydown", handleEscape)
+    window.addEventListener("click", handleClickOutside)
+    
+    return () => {
+      window.removeEventListener("keydown", handleEscape)
+      window.removeEventListener("click", handleClickOutside)
+    }
   }, [onCancel])
 
   return (
     <div
-      className="w-full h-full flex items-center justify-center"
+      className="floating-widget-container w-full h-full flex items-center justify-center"
       style={{
         width: "190px",
         height: "64px",

@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import { FloatingVoiceWidget } from "@/components/floating-voice-widget"
 import useVoiceStore from "@/lib/voice-store"
 
-export default function FloatingPage() {
+export default function VoicePopupPage() {
   // Use the synchronized store instead of local state
   const {
     isListening,
@@ -16,7 +16,7 @@ export default function FloatingPage() {
   } = useVoiceStore()
 
   // Debug logging
-  console.log('Floating page rendered with state:', { isListening, isProcessing, audioLevel })
+  console.log('Voice popup page rendered with state:', { isListening, isProcessing, audioLevel })
 
   useEffect(() => {
     const unsubs: Array<() => void> = []
@@ -42,21 +42,27 @@ export default function FloatingPage() {
 
   return (
     <div 
-      className="floating-widget-container w-full h-full bg-transparent flex items-center justify-center"
+      className="voice-popup-container w-full h-full bg-transparent flex items-center justify-center"
       style={{
         width: "190px",
         height: "64px",
         backgroundColor: "transparent",
+        overflow: "hidden",
       }}
     >
       <FloatingVoiceWidget
         isListening={isListening}
         isProcessing={isProcessing}
         audioLevel={audioLevel}
-        onCancel={() => setIsListening(false)}
+        onCancel={() => {
+          setIsListening(false)
+          // Hide the popup when canceling
+          const tauri = (window as any).__TAURI__
+          if (tauri?.invoke) {
+            tauri.invoke('hide_voice_popup').catch(console.error)
+          }
+        }}
       />
     </div>
   )
 }
-
-

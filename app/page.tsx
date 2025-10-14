@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Topbar } from "@/components/topbar"
 import { TranscriptionCard } from "@/components/transcription-card"
 import { SettingsModal } from "@/components/settings-modal"
+import { OnboardingModal } from "@/components/onboarding-modal"
 import { FloatingVoiceWidget } from "@/components/floating-voice-widget"
 import { useToast } from "@/hooks/use-toast"
 import { SettingsStore } from "@/lib/settings-store"
@@ -13,6 +14,8 @@ import "@/lib/test-store-sync"
 export default function Home() {
   const [showSettings, setShowSettings] = useState(false)
   const [floatingWindowVisible, setFloatingWindowVisible] = useState(false)
+  const [hasCheckedApiKey, setHasCheckedApiKey] = useState(false)
+  const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const audioContextRef = useRef<AudioContext | null>(null)
@@ -33,7 +36,7 @@ export default function Home() {
     deleteTranscript,
   } = useVoiceStore()
 
-  const ensureFloatingWindow = async () => {
+  const showVoicePopup = async () => {
     const tauri = (window as any).__TAURI__
     if (!tauri?.invoke) {
       console.warn('Tauri API not available')
@@ -41,11 +44,11 @@ export default function Home() {
     }
     
     try {
-      console.log('Attempting to show floating widget...')
-      await tauri.invoke('show_floating_widget')
-      console.log('Floating widget shown successfully')
+      console.log('Attempting to show voice popup...')
+      await tauri.invoke('show_voice_popup')
+      console.log('Voice popup shown successfully')
     } catch (error) {
-      console.error('Failed to show floating widget:', error)
+      console.error('Failed to show voice popup:', error)
     }
   }
 
@@ -120,7 +123,7 @@ export default function Home() {
 
     mediaRecorder.start(100)
     setIsListening(true)
-    await ensureFloatingWindow()
+    await showVoicePopup()
     try { (window as any).__TAURI__?.event?.emit("voice:start") } catch {}
 
     // Setup analyser for audio level visualization
@@ -164,13 +167,39 @@ export default function Home() {
       try {
         const tauri = (window as any).__TAURI__
         if (tauri?.invoke) {
-          await tauri.invoke('hide_floating_widget')
+          await tauri.invoke('hide_voice_popup')
         }
       } catch (error) {
-        console.error('Failed to hide floating widget:', error)
+        console.error('Failed to hide voice popup:', error)
       }
     })()
   }
+
+  // Check for API key on app startup
+  useEffect(() => {
+    const checkApiKey = async () => {
+      if (hasCheckedApiKey) return
+      
+      try {
+        const store = SettingsStore.getInstance()
+        await store.loadSettings()
+        const apiKey = store.getApiKey()
+        
+        if (!apiKey || apiKey.trim() === "") {
+          console.log("No API key found, showing settings dialog")
+          setIsFirstTimeSetup(true)
+          setShowSettings(true)
+        }
+        
+        setHasCheckedApiKey(true)
+      } catch (error) {
+        console.error("Failed to check API key:", error)
+        setHasCheckedApiKey(true)
+      }
+    }
+    
+    checkApiKey()
+  }, [hasCheckedApiKey])
 
   // Handle global Alt+M shortcut
   useEffect(() => {
@@ -179,45 +208,14 @@ export default function Home() {
         e.preventDefault()
         console.log('Alt+M pressed globally')
         
+        // Use the system tray popup
         try {
-          const { getCurrentWindow, WebviewWindow } = await import('@tauri-apps/api/window')
-          
-          // Always create a new window for simplicity
-          const floatingWindow = new WebviewWindow('floating', {
-            url: '/floating',
-            title: 'Voice Widget',
-            width: 190,
-            height: 64,
-            alwaysOnTop: true,
-            decorations: false,
-            transparent: true,
-            skipTaskbar: true,
-            resizable: false,
-          })
-
-          floatingWindow.once('tauri://created', () => {
-            console.log('Voice widget window created')
-            setFloatingWindowVisible(true)
-            // Start recording when window is created
-            if (!isListening && !isProcessing) {
-              startRecording()
-            }
-          })
-
-          floatingWindow.once('tauri://error', (e) => {
-            console.error('Error creating window:', e)
-          })
-        } catch (error) {
-          console.error('Failed to handle global shortcut:', error)
-          // Fallback: try to use the existing Tauri invoke method
-          try {
-            await ensureFloatingWindow()
-            if (!isListening && !isProcessing) {
-              startRecording()
-            }
-          } catch (fallbackError) {
-            console.error('Fallback method also failed:', fallbackError)
+          await showVoicePopup()
+          if (!isListening && !isProcessing) {
+            startRecording()
           }
+        } catch (error) {
+          console.error('Failed to show voice popup:', error)
         }
       }
     }
@@ -285,7 +283,7 @@ export default function Home() {
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2">Your Transcriptions</h2>
           <p className="text-muted-foreground">
-            Press <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Alt + M</kbd> globally to show the voice widget and start recording
+            Click the system tray icon or press <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Alt + M</kbd> to show the voice widget and start recording
           </p>
         </div>
 
@@ -296,7 +294,16 @@ export default function Home() {
         </div>
       </main>
 
-      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {showSettings && isFirstTimeSetup && (
+        <OnboardingModal onComplete={() => {
+          setShowSettings(false)
+          setIsFirstTimeSetup(false)
+        }} />
+      )}
+      
+      {showSettings && !isFirstTimeSetup && (
+        <SettingsModal onClose={() => setShowSettings(false)} />
+      )}
     </div>
   )
 }
