@@ -11,7 +11,7 @@ async fn request_microphone_permission() -> Result<bool, String> {
 async fn show_voice_popup(app: tauri::AppHandle) -> Result<(), String> {
   // Create a popup window for the voice widget
   let popup = tauri::WebviewWindowBuilder::new(&app, "voice-popup", tauri::WebviewUrl::App("/voice-popup".into()))
-    .title("Voice Widget")
+    .title("Sweesh Voice Widget")
     .inner_size(190.0, 64.0)
     .decorations(false)
     .transparent(true)

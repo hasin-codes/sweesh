@@ -11,9 +11,10 @@ interface TranscriptionCardProps {
   text: string
   date: string
   onDelete?: (id: number) => void
+  onClick?: (id: number) => void
 }
 
-export function TranscriptionCard({ id, file, text, date, onDelete }: TranscriptionCardProps) {
+export function TranscriptionCard({ id, file, text, date, onDelete, onClick }: TranscriptionCardProps) {
   const { toast } = useToast()
 
   const handleCopy = async (e: React.MouseEvent) => {
@@ -29,6 +30,7 @@ export function TranscriptionCard({ id, file, text, date, onDelete }: Transcript
   return (
     <Card
       className="relative overflow-hidden p-0 transition-transform duration-200 cursor-pointer hover:-translate-y-0.5 ring-inset ring-2 ring-black/30 dark:ring-white/20 bg-card"
+      onClick={() => onClick?.(id)}
     >
       {/* Gradient header (no top margin, follows rounded corners) */}
       <div

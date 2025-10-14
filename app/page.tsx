@@ -3,19 +3,21 @@
 import { useState, useEffect, useRef } from "react"
 import { Topbar } from "@/components/topbar"
 import { TranscriptionCard } from "@/components/transcription-card"
+import { TranscriptionModal } from "@/components/transcription-modal"
 import { SettingsModal } from "@/components/settings-modal"
 import { OnboardingModal } from "@/components/onboarding-modal"
 import { FloatingVoiceWidget } from "@/components/floating-voice-widget"
 import { useToast } from "@/hooks/use-toast"
 import { SettingsStore } from "@/lib/settings-store"
 import useVoiceStore from "@/lib/voice-store"
-import "@/lib/test-store-sync"
+
 
 export default function Home() {
   const [showSettings, setShowSettings] = useState(false)
   const [floatingWindowVisible, setFloatingWindowVisible] = useState(false)
   const [hasCheckedApiKey, setHasCheckedApiKey] = useState(false)
   const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false)
+  const [selectedTranscription, setSelectedTranscription] = useState<number | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const audioContextRef = useRef<AudioContext | null>(null)
@@ -33,6 +35,7 @@ export default function Home() {
     setIsProcessing,
     setAudioLevel,
     addTranscript,
+    updateTranscript,
     deleteTranscript,
   } = useVoiceStore()
 
@@ -270,6 +273,18 @@ export default function Home() {
     })
   }
 
+  const handleUpdateTranscript = (id: number, newText: string) => {
+    updateTranscript(id, { text: newText })
+  }
+
+  const handleTranscriptionClick = (id: number) => {
+    setSelectedTranscription(id)
+  }
+
+  const selectedTranscriptionData = selectedTranscription 
+    ? transcripts.find(t => t.id === selectedTranscription)
+    : null
+
   const handleCancel = () => {
     setIsListening(false)
     setIsProcessing(false)
@@ -279,7 +294,7 @@ export default function Home() {
     <div className="relative min-h-screen bg-background">
       <Topbar onSettings={() => setShowSettings(true)} onAddRecording={handleAddRecording} />
 
-      <main className="max-w-6xl mx-auto px-6 pt-24 pb-8">
+      <main className="max-w-6xl mx-auto pl-6 pr-6 pt-32 pb-8">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2">Your Transcriptions</h2>
           <p className="text-muted-foreground">
@@ -289,7 +304,12 @@ export default function Home() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {transcripts.map((transcript) => (
-            <TranscriptionCard key={transcript.id} {...transcript} onDelete={handleDeleteTranscript} />
+            <TranscriptionCard 
+              key={transcript.id} 
+              {...transcript} 
+              onDelete={handleDeleteTranscript}
+              onClick={handleTranscriptionClick}
+            />
           ))}
         </div>
       </main>
@@ -303,6 +323,16 @@ export default function Home() {
       
       {showSettings && !isFirstTimeSetup && (
         <SettingsModal onClose={() => setShowSettings(false)} />
+      )}
+
+      {selectedTranscriptionData && (
+        <TranscriptionModal
+          isOpen={!!selectedTranscription}
+          onClose={() => setSelectedTranscription(null)}
+          transcription={selectedTranscriptionData}
+          onDelete={handleDeleteTranscript}
+          onUpdate={handleUpdateTranscript}
+        />
       )}
     </div>
   )

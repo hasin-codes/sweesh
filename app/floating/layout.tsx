@@ -1,3 +1,8 @@
+export const metadata = {
+  title: "Sweesh Voice Widget",
+  description: "A compact always-on-top voice widget for quick recordings.",
+};
+
 export default function FloatingLayout({
   children,
 }: {
