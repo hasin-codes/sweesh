@@ -62,12 +62,10 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
       <div className="relative bg-card rounded-xl shadow-2xl w-full max-w-md mx-4 p-8 space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 mx-auto bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-2xl">
-            🎤
-          </div>
+          
           <h1 className="text-2xl font-bold text-foreground">Welcome to Sweesh</h1>
           <p className="text-muted-foreground">
-            Your personal voice transcription assistant
+          Speak it, see it, send it.
           </p>
         </div>
 
