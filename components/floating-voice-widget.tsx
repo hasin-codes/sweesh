@@ -110,7 +110,7 @@ export function FloatingVoiceWidget({
 
   return (
     <div
-      className="floating-widget-container w-full h-full flex items-center justify-center"
+      className="floating-widget-container fixed right-0 top-1/2 -translate-y-1/2 flex items-center justify-center"
       style={{
         width: "190px",
         height: "64px",
@@ -120,7 +120,7 @@ export function FloatingVoiceWidget({
       }}
     >
       <div
-        className="flex items-center gap-3 bg-white px-3 shadow-lg select-none"
+        className="flex items-center gap-3 px-3 shadow-lg select-none backdrop-blur-md bg-white/20"
         style={{
           borderTopLeftRadius: "64px",
           borderBottomLeftRadius: "64px",
@@ -139,8 +139,8 @@ export function FloatingVoiceWidget({
           <div
             className={cn("h-12 w-12 rounded-full", isListening && !isProcessing && "animate-pulse")}
             style={{
-              background: "radial-gradient(circle at 30% 30%, #6B21A8, #2563EB)",
-              boxShadow: "0 0 12px rgba(107, 33, 168, 0.4)",
+              background: "radial-gradient(circle at 30% 30%, #dc2626, #ea580c)",
+              boxShadow: "0 0 12px rgba(220, 38, 38, 0.4)",
               animation: isListening && !isProcessing ? "pulse 1.2s infinite ease-in-out" : "none",
             }}
           >
@@ -158,7 +158,7 @@ export function FloatingVoiceWidget({
               className="w-[3px] rounded-full transition-all duration-100"
               style={{
                 height: `${height * 32}px`,
-                background: "linear-gradient(to top, #9333EA, #EC4899)",
+                background: "linear-gradient(to top, #dc2626, #ea580c)",
                 opacity: isProcessing ? 0.3 : 1,
               }}
             />
