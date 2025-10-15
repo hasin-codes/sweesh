@@ -52,14 +52,8 @@ export function SettingsModal({ onClose }: SettingsModalProps) {
 
   const openOsMicSettings = async () => {
     try {
-      // Tauri shell deep link to Windows mic settings; no-op on web
-      const tauri = (window as any).__TAURI__
-      if (tauri?.shell?.open) {
-        await tauri.shell.open("ms-settings:privacy-microphone")
-      } else {
-        // Fallback: try to navigate (may be blocked by browser)
-        window.location.href = "ms-settings:privacy-microphone"
-      }
+      // Try to navigate to Windows mic settings (may be blocked by browser)
+      window.location.href = "ms-settings:privacy-microphone"
     } catch (err) {
       toast({ title: "Unable to open settings", description: "Open Settings > Privacy > Microphone manually." })
     }

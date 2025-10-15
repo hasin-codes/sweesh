@@ -8,6 +8,9 @@ interface FloatingVoiceWidgetProps {
   isProcessing?: boolean
   audioLevel?: number
   onCancel?: () => void
+  onStartRecording?: () => void
+  onStopRecording?: () => void
+  onShow?: () => void
 }
 
 export function FloatingVoiceWidget({
@@ -15,6 +18,9 @@ export function FloatingVoiceWidget({
   isProcessing = false,
   audioLevel = 0,
   onCancel,
+  onStartRecording,
+  onStopRecording,
+  onShow,
 }: FloatingVoiceWidgetProps) {
   const [bars, setBars] = useState<number[]>(Array(8).fill(0.3))
 
@@ -50,14 +56,71 @@ export function FloatingVoiceWidget({
       }
     }
 
+    // Push-to-talk with mouse
+    const handleMouseDown = (e: MouseEvent) => {
+      if (e.button === 0) { // Left mouse button
+        e.preventDefault()
+        onStartRecording?.()
+      }
+    }
+
+    const handleMouseUp = (e: MouseEvent) => {
+      if (e.button === 0) { // Left mouse button
+        e.preventDefault()
+        onStopRecording?.()
+      }
+    }
+
+    // Push-to-talk with keyboard (Alt+M) - only when widget is visible
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.altKey && (e.key === "m" || e.key === "M")) {
+        e.preventDefault()
+        e.stopPropagation() // Prevent global handler from firing
+        onStartRecording?.()
+      }
+    }
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.altKey && (e.key === "m" || e.key === "M")) {
+        e.preventDefault()
+        e.stopPropagation() // Prevent global handler from firing
+        onStopRecording?.()
+      }
+    }
+
     window.addEventListener("keydown", handleEscape)
+    window.addEventListener("keydown", handleKeyDown)
+    window.addEventListener("keyup", handleKeyUp)
     window.addEventListener("click", handleClickOutside)
+    window.addEventListener("mousedown", handleMouseDown)
+    window.addEventListener("mouseup", handleMouseUp)
     
     return () => {
       window.removeEventListener("keydown", handleEscape)
+      window.removeEventListener("keydown", handleKeyDown)
+      window.removeEventListener("keyup", handleKeyUp)
       window.removeEventListener("click", handleClickOutside)
+      window.removeEventListener("mousedown", handleMouseDown)
+      window.removeEventListener("mouseup", handleMouseUp)
     }
-  }, [onCancel])
+  }, [onCancel, onStartRecording, onStopRecording])
+
+  // Global Alt+M listener to show widget
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.altKey && (e.key === "m" || e.key === "M")) {
+        e.preventDefault()
+        console.log('Alt+M pressed globally - showing widget')
+        onShow?.()
+      }
+    }
+
+    document.addEventListener("keydown", handleGlobalKeyDown)
+    
+    return () => {
+      document.removeEventListener("keydown", handleGlobalKeyDown)
+    }
+  }, [onShow])
 
   return (
     <div
@@ -71,7 +134,7 @@ export function FloatingVoiceWidget({
       }}
     >
       <div
-        className="flex items-center gap-3 bg-white px-3 shadow-lg"
+        className="flex items-center gap-3 bg-white px-3 shadow-lg cursor-pointer select-none"
         style={{
           borderTopLeftRadius: "64px",
           borderBottomLeftRadius: "64px",
@@ -82,6 +145,24 @@ export function FloatingVoiceWidget({
           width: "190px",
           minWidth: "190px",
           minHeight: "64px",
+          userSelect: "none",
+        }}
+        onMouseDown={(e) => {
+          if (e.button === 0) {
+            e.preventDefault()
+            onStartRecording?.()
+          }
+        }}
+        onMouseUp={(e) => {
+          if (e.button === 0) {
+            e.preventDefault()
+            onStopRecording?.()
+          }
+        }}
+        onMouseLeave={() => {
+          if (isListening) {
+            onStopRecording?.()
+          }
         }}
       >
         {/* Left Orb */}
@@ -113,6 +194,11 @@ export function FloatingVoiceWidget({
               }}
             />
           ))}
+        </div>
+
+        {/* Push-to-talk indicator */}
+        <div className="text-xs text-gray-600 font-medium">
+          {isListening ? "Release" : "Hold"}
         </div>
       </div>
     </div>

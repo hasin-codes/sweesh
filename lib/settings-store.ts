@@ -27,14 +27,12 @@ export class SettingsStore {
 
   async loadSettings(): Promise<Settings> {
     try {
-      const tauri = (window as any).__TAURI__
-      if (tauri?.store) {
-        const apiKey = await tauri.store.get("apiKey") || ""
-        const autoSave = await tauri.store.get("autoSave") || false
-        const darkMode = await tauri.store.get("darkMode") || false
-        const saveLocation = await tauri.store.get("saveLocation") || ""
-        
-        this.settings = { apiKey, autoSave, darkMode, saveLocation }
+      if (typeof window !== "undefined") {
+        const savedSettings = localStorage.getItem('sweesh-settings')
+        if (savedSettings) {
+          const parsedSettings = JSON.parse(savedSettings)
+          this.settings = { ...this.settings, ...parsedSettings }
+        }
       }
     } catch (error) {
       console.log("Settings not found, using defaults")
@@ -46,12 +44,8 @@ export class SettingsStore {
     this.settings = { ...this.settings, ...newSettings }
     
     try {
-      const tauri = (window as any).__TAURI__
-      if (tauri?.store) {
-        for (const [key, value] of Object.entries(newSettings)) {
-          await tauri.store.set(key, value)
-        }
-        await tauri.store.save()
+      if (typeof window !== "undefined") {
+        localStorage.setItem('sweesh-settings', JSON.stringify(this.settings))
       }
     } catch (error) {
       console.error("Failed to save settings:", error)

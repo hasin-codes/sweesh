@@ -40,28 +40,13 @@ export default function Home() {
   } = useVoiceStore()
 
   const showVoicePopup = async () => {
-    const tauri = (window as any).__TAURI__
-    if (!tauri?.invoke) {
-      console.warn('Tauri API not available')
-      return
-    }
-    
-    try {
-      console.log('Attempting to show voice popup...')
-      await tauri.invoke('show_voice_popup')
-      console.log('Voice popup shown successfully')
-    } catch (error) {
-      console.error('Failed to show voice popup:', error)
-    }
+    // For web version, show the floating widget directly in the main window
+    console.log('Showing voice popup in main window...')
+    setFloatingWindowVisible(true)
   }
 
   const startRecording = async () => {
     if (mediaRecorderRef.current?.state === "recording") return
-    
-    const tauri = (window as any).__TAURI__
-    if (tauri?.invoke) {
-      await tauri.invoke('request_microphone_permission')
-    }
     
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" })
@@ -127,7 +112,6 @@ export default function Home() {
     mediaRecorder.start(100)
     setIsListening(true)
     await showVoicePopup()
-    try { (window as any).__TAURI__?.event?.emit("voice:start") } catch {}
 
     // Setup analyser for audio level visualization
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
@@ -149,7 +133,6 @@ export default function Home() {
       const rms = Math.sqrt(sum / dataArray.length)
       const level = Math.min(1, Math.max(0.1, rms * 2))
       setAudioLevel(level)
-      try { (window as any).__TAURI__?.event?.emit("voice:level", level) } catch {}
       animationFrameRef.current = requestAnimationFrame(updateLevel)
     }
     updateLevel()
@@ -165,17 +148,7 @@ export default function Home() {
       audioContextRef.current = null
     }
     setIsListening(false)
-    try { (window as any).__TAURI__?.event?.emit("voice:stop") } catch {}
-    ;(async () => {
-      try {
-        const tauri = (window as any).__TAURI__
-        if (tauri?.invoke) {
-          await tauri.invoke('hide_voice_popup')
-        }
-      } catch (error) {
-        console.error('Failed to hide voice popup:', error)
-      }
-    })()
+    setFloatingWindowVisible(false)
   }
 
   // Check for API key on app startup
@@ -204,34 +177,8 @@ export default function Home() {
     checkApiKey()
   }, [hasCheckedApiKey])
 
-  // Handle global Alt+M shortcut
-  useEffect(() => {
-    const handleGlobalKeyDown = async (e: KeyboardEvent) => {
-      if (e.altKey && (e.key === "m" || e.key === "M")) {
-        e.preventDefault()
-        console.log('Alt+M pressed globally')
-        
-        // Use the system tray popup
-        try {
-          await showVoicePopup()
-          if (!isListening && !isProcessing) {
-            startRecording()
-          }
-        } catch (error) {
-          console.error('Failed to show voice popup:', error)
-        }
-      }
-    }
 
-    // Add global event listener
-    document.addEventListener('keydown', handleGlobalKeyDown)
-    
-    return () => {
-      document.removeEventListener('keydown', handleGlobalKeyDown)
-    }
-  }, [isListening, isProcessing, startRecording, floatingWindowVisible])
-
-  // Handle Alt + M push-to-talk recording (now handled by global shortcut)
+  // Handle Escape key to stop recording
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && (isListening || isProcessing)) {
@@ -240,19 +187,10 @@ export default function Home() {
       }
     }
 
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === "Alt" && isListening) {
-        e.preventDefault()
-        stopRecording()
-      }
-    }
-
     window.addEventListener("keydown", handleKeyDown)
-    window.addEventListener("keyup", handleKeyUp)
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
-      window.removeEventListener("keyup", handleKeyUp)
     }
   }, [isListening, isProcessing])
 
@@ -334,6 +272,27 @@ export default function Home() {
           onUpdate={handleUpdateTranscript}
         />
       )}
+
+      <div className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none ${floatingWindowVisible ? 'block' : 'hidden'}`}>
+        <div className="pointer-events-auto">
+          <FloatingVoiceWidget
+            isListening={isListening}
+            isProcessing={isProcessing}
+            audioLevel={audioLevel}
+            onCancel={() => {
+              setIsListening(false)
+              setFloatingWindowVisible(false)
+              stopRecording()
+            }}
+            onStartRecording={startRecording}
+            onStopRecording={stopRecording}
+            onShow={() => {
+              console.log('Showing voice popup in main window...')
+              setFloatingWindowVisible(true)
+            }}
+          />
+        </div>
+      </div>
     </div>
   )
 }

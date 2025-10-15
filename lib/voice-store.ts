@@ -73,82 +73,27 @@ const useVoiceStore = create<VoiceStore>((set, get) => ({
 
 // --- STATE SYNCHRONIZATION LOGIC -------------------------------
 
-let isProcessingUpdate = false;
-
-// PHASE 1: BROADCAST STATE CHANGES
-useVoiceStore.subscribe(async (currentState, previousState) => {
-  if (typeof window === "undefined") return;
-
-  if (isProcessingUpdate) return;
-
-  if (!isEqual(currentState, previousState)) {
+// Simple localStorage-based persistence for web
+if (typeof window !== "undefined") {
+  // Load state from localStorage on initialization
+  const savedState = localStorage.getItem('voice-store');
+  if (savedState) {
     try {
-      const { emit } = await import("@tauri-apps/api/event");
-      emit("voice-store-update", currentState);
+      const parsedState = JSON.parse(savedState);
+      useVoiceStore.setState(parsedState);
     } catch (error) {
-      console.warn("Failed to emit voice store update:", error);
+      console.warn("Failed to load voice store from localStorage:", error);
     }
   }
-});
 
-// PHASE 2: LISTEN FOR STATE CHANGES
-if (typeof window !== "undefined") {
-  (async () => {
+  // Save state to localStorage on changes
+  useVoiceStore.subscribe((state) => {
     try {
-      const { listen } = await import("@tauri-apps/api/event");
-      listen("voice-store-update", (event) => {
-        const newState = event.payload as VoiceStore; // ✅ typed payload
-
-        if (!isEqual(useVoiceStore.getState(), newState)) {
-          console.log("Received voice store update from another window");
-          isProcessingUpdate = true;
-          useVoiceStore.setState(newState); // ✅ safe cast
-          isProcessingUpdate = false;
-        }
-      });
+      localStorage.setItem('voice-store', JSON.stringify(state));
     } catch (error) {
-      console.warn("Failed to set up voice store listener:", error);
+      console.warn("Failed to save voice store to localStorage:", error);
     }
-  })();
-}
-
-// --- PHASE 3: INITIAL STATE HYDRATION --------------------------
-
-let hasHydrated = false;
-
-const initializeStoreSync = async () => {
-  if (typeof window === "undefined") return;
-
-  try {
-    const { emit, listen } = await import("@tauri-apps/api/event");
-
-    // Request current state from other windows
-    await emit("get-voice-store-request");
-
-    // Respond to state requests
-    await listen("get-voice-store-request", () => {
-      console.log("Received voice store request, responding with current state");
-      emit("get-voice-store-response", { state: useVoiceStore.getState() });
-    });
-
-    // Hydrate new window with received state
-    await listen<{ state: VoiceStore }>("get-voice-store-response", (event) => {
-      if (!hasHydrated) {
-        console.log("Hydrating voice store with state from another window");
-        const newState = event.payload.state;
-        isProcessingUpdate = true;
-        useVoiceStore.setState(newState);
-        isProcessingUpdate = false;
-        hasHydrated = true;
-      }
-    });
-  } catch (error) {
-    console.warn("Failed to initialize store sync:", error);
-  }
-};
-
-if (typeof window !== "undefined") {
-  initializeStoreSync();
+  });
 }
 
 export default useVoiceStore;
