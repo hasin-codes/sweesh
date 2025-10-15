@@ -36,8 +36,15 @@ export function TranscriptionCard({ id, file, text, date, onDelete, onClick }: T
       <div
         className="w-full h-24 rounded-t-xl border-b border-border"
         style={{
-          background:
-            "radial-gradient(120% 80% at 0% 0%, rgba(255,99,71,0.75) 0%, rgba(255,140,0,0.65) 35%, rgba(220,38,38,0.6) 70%, transparent 100%), conic-gradient(from 220deg at 60% 40%, rgba(255,140,0,0.35), rgba(255,69,58,0.35), rgba(220,38,38,0.35))",
+          backgroundImage: `
+            radial-gradient(circle 60px at 10% 40%, rgba(255, 255, 255, 0.16) 0%, transparent 100%),
+            radial-gradient(circle 40px at 30% 70%, rgba(255, 255, 255, 0.12) 0%, transparent 100%),
+            radial-gradient(circle 50px at 50% 30%, rgba(255, 255, 255, 0.14) 0%, transparent 100%),
+            radial-gradient(circle 70px at 70% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 100%),
+            radial-gradient(circle 30px at 90% 60%, rgba(255, 255, 255, 0.12) 0%, transparent 100%),
+            linear-gradient(to right, #c40000, #ff4500)
+          `,
+          backgroundSize: "cover"
         }}
       />
 

@@ -18,6 +18,7 @@ export default function Home() {
   const [floatingWindowVisible, setFloatingWindowVisible] = useState(false)
   const [hasCheckedApiKey, setHasCheckedApiKey] = useState(false)
   const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false)
+  const [isOnboardingComplete, setIsOnboardingComplete] = useState(false)
   const [selectedTranscription, setSelectedTranscription] = useState<number | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
@@ -163,21 +164,35 @@ export default function Home() {
         const apiKey = store.getApiKey()
         
         if (!apiKey || apiKey.trim() === "") {
-          console.log("No API key found, showing settings dialog")
+          console.log("No API key found, showing onboarding dialog")
           setIsFirstTimeSetup(true)
           setShowSettings(true)
+          setIsOnboardingComplete(false)
+        } else {
+          console.log("API key found, onboarding complete")
+          setIsOnboardingComplete(true)
         }
         
         setHasCheckedApiKey(true)
       } catch (error) {
         console.error("Failed to check API key:", error)
         setHasCheckedApiKey(true)
+        setIsOnboardingComplete(false)
       }
     }
     
     checkApiKey()
   }, [hasCheckedApiKey])
 
+  // Debug: Monitor onboarding completion state
+  useEffect(() => {
+    console.log("Onboarding state changed:", {
+      hasCheckedApiKey,
+      isOnboardingComplete,
+      isFirstTimeSetup,
+      showSettings
+    })
+  }, [hasCheckedApiKey, isOnboardingComplete, isFirstTimeSetup, showSettings])
 
   // Handle Escape key to stop recording
   useEffect(() => {
@@ -235,64 +250,72 @@ export default function Home() {
 
       <main className="max-w-6xl mx-auto pl-6 pr-6 pt-32 pb-8">
         <SignedIn>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-foreground mb-2">Your Transcriptions</h2>
-            <p className="text-muted-foreground">
-              Click the system tray icon or press <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Alt + M</kbd> to show the voice widget and start recording
-            </p>
-          </div>
+          {isOnboardingComplete ? (
+            <>
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-foreground mb-2">Your Transcriptions</h2>
+                <p className="text-muted-foreground">
+                  Click the system tray icon or press <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Alt + M</kbd> to show the voice widget and start recording
+                </p>
+              </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {transcripts.map((transcript) => (
-              <TranscriptionCard 
-                key={transcript.id} 
-                {...transcript} 
-                onDelete={handleDeleteTranscript}
-                onClick={handleTranscriptionClick}
-              />
-            ))}
-          </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {transcripts.map((transcript) => (
+                  <TranscriptionCard 
+                    key={transcript.id} 
+                    {...transcript} 
+                    onDelete={handleDeleteTranscript}
+                    onClick={handleTranscriptionClick}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+              <div className="max-w-md mx-auto space-y-6">
+                <div className="space-y-2">
+                  <h1 className="text-4xl font-bold text-foreground">Welcome to Sweesh</h1>
+                  <p className="text-lg text-muted-foreground">
+                    Please complete the setup to start using Sweesh.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </SignedIn>
 
         <SignedOut>
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-            <div className="max-w-md mx-auto space-y-6">
-              <div className="space-y-2">
-                <h1 className="text-4xl font-bold text-foreground">Welcome to Sweesh</h1>
-                <p className="text-lg text-muted-foreground">
-                  The fastest way to capture thoughts, reminders, and messages. 
-                  Speak it, see it, send it — instantly.
-                </p>
-              </div>
-              
-              <div className="space-y-4">
-                <SignInButton mode="modal">
-                  <button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium transition-colors">
-                    Sign In
-                  </button>
-                </SignInButton>
-                
-                <SignUpButton mode="modal">
-                  <button className="w-full border border-border bg-background hover:bg-accent hover:text-accent-foreground px-6 py-3 rounded-lg font-medium transition-colors">
-                    Create Account
-                  </button>
-                </SignUpButton>
-              </div>
-              
-              <div className="text-sm text-muted-foreground">
-                <p>Sign in to start recording and managing your voice transcriptions.</p>
-              </div>
-            </div>
-          </div>
+          {/* Onboarding modal will handle the authentication flow */}
         </SignedOut>
       </main>
+
+      {/* Show onboarding modal for unauthenticated users */}
+      <SignedOut>
+        <OnboardingModal onComplete={() => {
+          setShowSettings(false)
+          setIsFirstTimeSetup(false)
+          setIsOnboardingComplete(true)
+        }} />
+      </SignedOut>
 
       {showSettings && isFirstTimeSetup && (
         <OnboardingModal onComplete={() => {
           setShowSettings(false)
           setIsFirstTimeSetup(false)
+          setIsOnboardingComplete(true)
         }} />
       )}
+
+      {/* Show onboarding modal for authenticated users who haven't completed setup */}
+      <SignedIn>
+        {!isOnboardingComplete && hasCheckedApiKey && (
+          <OnboardingModal onComplete={() => {
+            setShowSettings(false)
+            setIsFirstTimeSetup(false)
+            setIsOnboardingComplete(true)
+          }} />
+        )}
+      </SignedIn>
       
       {showSettings && !isFirstTimeSetup && (
         <SettingsModal onClose={() => setShowSettings(false)} />
@@ -309,26 +332,28 @@ export default function Home() {
       )}
 
       <SignedIn>
-        <div className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none ${floatingWindowVisible ? 'block' : 'hidden'}`}>
-          <div className="pointer-events-auto">
-            <FloatingVoiceWidget
-              isListening={isListening}
-              isProcessing={isProcessing}
-              audioLevel={audioLevel}
-              onCancel={() => {
-                setIsListening(false)
-                setFloatingWindowVisible(false)
-                stopRecording()
-              }}
-              onStartRecording={startRecording}
-              onStopRecording={stopRecording}
-              onShow={() => {
-                console.log('Showing voice popup in main window...')
-                setFloatingWindowVisible(true)
-              }}
-            />
+        {isOnboardingComplete && (
+          <div className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none ${floatingWindowVisible ? 'block' : 'hidden'}`}>
+            <div className="pointer-events-auto">
+              <FloatingVoiceWidget
+                isListening={isListening}
+                isProcessing={isProcessing}
+                audioLevel={audioLevel}
+                onCancel={() => {
+                  setIsListening(false)
+                  setFloatingWindowVisible(false)
+                  stopRecording()
+                }}
+                onStartRecording={startRecording}
+                onStopRecording={stopRecording}
+                onShow={() => {
+                  console.log('Showing voice popup in main window...')
+                  setFloatingWindowVisible(true)
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </SignedIn>
     </div>
   )
