@@ -67,7 +67,7 @@ export function FloatingVoiceWidget({
     }
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.altKey && (e.key === "m" || e.key === "M")) {
+      if (e.key === "m" || e.key === "M") {
         e.preventDefault()
         e.stopPropagation() // Prevent global handler from firing
         onStopRecording?.()

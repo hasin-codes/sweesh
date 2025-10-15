@@ -149,6 +149,10 @@ export default function Home() {
       audioContextRef.current.close()
       audioContextRef.current = null
     }
+    // Stop all tracks in the media stream to release microphone access
+    if (mediaRecorderRef.current && mediaRecorderRef.current.stream) {
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop())
+    }
     setIsListening(false)
     setFloatingWindowVisible(false)
   }
