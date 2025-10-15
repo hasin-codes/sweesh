@@ -56,20 +56,6 @@ export function FloatingVoiceWidget({
       }
     }
 
-    // Push-to-talk with mouse
-    const handleMouseDown = (e: MouseEvent) => {
-      if (e.button === 0) { // Left mouse button
-        e.preventDefault()
-        onStartRecording?.()
-      }
-    }
-
-    const handleMouseUp = (e: MouseEvent) => {
-      if (e.button === 0) { // Left mouse button
-        e.preventDefault()
-        onStopRecording?.()
-      }
-    }
 
     // Push-to-talk with keyboard (Alt+M) - only when widget is visible
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -92,16 +78,12 @@ export function FloatingVoiceWidget({
     window.addEventListener("keydown", handleKeyDown)
     window.addEventListener("keyup", handleKeyUp)
     window.addEventListener("click", handleClickOutside)
-    window.addEventListener("mousedown", handleMouseDown)
-    window.addEventListener("mouseup", handleMouseUp)
     
     return () => {
       window.removeEventListener("keydown", handleEscape)
       window.removeEventListener("keydown", handleKeyDown)
       window.removeEventListener("keyup", handleKeyUp)
       window.removeEventListener("click", handleClickOutside)
-      window.removeEventListener("mousedown", handleMouseDown)
-      window.removeEventListener("mouseup", handleMouseUp)
     }
   }, [onCancel, onStartRecording, onStopRecording])
 
@@ -109,6 +91,10 @@ export function FloatingVoiceWidget({
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && (e.key === "m" || e.key === "M")) {
+        // Use the repeat property to only trigger on the first press, not repeats
+        if (e.repeat) {
+          return
+        }
         e.preventDefault()
         console.log('Alt+M pressed globally - showing widget')
         onShow?.()
@@ -134,7 +120,7 @@ export function FloatingVoiceWidget({
       }}
     >
       <div
-        className="flex items-center gap-3 bg-white px-3 shadow-lg cursor-pointer select-none"
+        className="flex items-center gap-3 bg-white px-3 shadow-lg select-none"
         style={{
           borderTopLeftRadius: "64px",
           borderBottomLeftRadius: "64px",
@@ -146,23 +132,6 @@ export function FloatingVoiceWidget({
           minWidth: "190px",
           minHeight: "64px",
           userSelect: "none",
-        }}
-        onMouseDown={(e) => {
-          if (e.button === 0) {
-            e.preventDefault()
-            onStartRecording?.()
-          }
-        }}
-        onMouseUp={(e) => {
-          if (e.button === 0) {
-            e.preventDefault()
-            onStopRecording?.()
-          }
-        }}
-        onMouseLeave={() => {
-          if (isListening) {
-            onStopRecording?.()
-          }
         }}
       >
         {/* Left Orb */}
@@ -198,7 +167,7 @@ export function FloatingVoiceWidget({
 
         {/* Push-to-talk indicator */}
         <div className="text-xs text-gray-600 font-medium">
-          {isListening ? "Release" : "Hold"}
+          {isListening ? "Release Alt+M" : "Hold Alt+M"}
         </div>
       </div>
     </div>
