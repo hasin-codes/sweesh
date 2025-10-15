@@ -10,6 +10,7 @@ import { FloatingVoiceWidget } from "@/components/floating-voice-widget"
 import { useToast } from "@/hooks/use-toast"
 import { SettingsStore } from "@/lib/settings-store"
 import useVoiceStore from "@/lib/voice-store"
+import { SignedIn, SignedOut, SignInButton, SignUpButton } from "@clerk/nextjs"
 
 
 export default function Home() {
@@ -233,23 +234,57 @@ export default function Home() {
       <Topbar onSettings={() => setShowSettings(true)} onAddRecording={handleAddRecording} />
 
       <main className="max-w-6xl mx-auto pl-6 pr-6 pt-32 pb-8">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Your Transcriptions</h2>
-          <p className="text-muted-foreground">
-            Click the system tray icon or press <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Alt + M</kbd> to show the voice widget and start recording
-          </p>
-        </div>
+        <SignedIn>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-foreground mb-2">Your Transcriptions</h2>
+            <p className="text-muted-foreground">
+              Click the system tray icon or press <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Alt + M</kbd> to show the voice widget and start recording
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {transcripts.map((transcript) => (
-            <TranscriptionCard 
-              key={transcript.id} 
-              {...transcript} 
-              onDelete={handleDeleteTranscript}
-              onClick={handleTranscriptionClick}
-            />
-          ))}
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {transcripts.map((transcript) => (
+              <TranscriptionCard 
+                key={transcript.id} 
+                {...transcript} 
+                onDelete={handleDeleteTranscript}
+                onClick={handleTranscriptionClick}
+              />
+            ))}
+          </div>
+        </SignedIn>
+
+        <SignedOut>
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+            <div className="max-w-md mx-auto space-y-6">
+              <div className="space-y-2">
+                <h1 className="text-4xl font-bold text-foreground">Welcome to Sweesh</h1>
+                <p className="text-lg text-muted-foreground">
+                  The fastest way to capture thoughts, reminders, and messages. 
+                  Speak it, see it, send it — instantly.
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                <SignInButton mode="modal">
+                  <button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium transition-colors">
+                    Sign In
+                  </button>
+                </SignInButton>
+                
+                <SignUpButton mode="modal">
+                  <button className="w-full border border-border bg-background hover:bg-accent hover:text-accent-foreground px-6 py-3 rounded-lg font-medium transition-colors">
+                    Create Account
+                  </button>
+                </SignUpButton>
+              </div>
+              
+              <div className="text-sm text-muted-foreground">
+                <p>Sign in to start recording and managing your voice transcriptions.</p>
+              </div>
+            </div>
+          </div>
+        </SignedOut>
       </main>
 
       {showSettings && isFirstTimeSetup && (
@@ -273,26 +308,28 @@ export default function Home() {
         />
       )}
 
-      <div className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none ${floatingWindowVisible ? 'block' : 'hidden'}`}>
-        <div className="pointer-events-auto">
-          <FloatingVoiceWidget
-            isListening={isListening}
-            isProcessing={isProcessing}
-            audioLevel={audioLevel}
-            onCancel={() => {
-              setIsListening(false)
-              setFloatingWindowVisible(false)
-              stopRecording()
-            }}
-            onStartRecording={startRecording}
-            onStopRecording={stopRecording}
-            onShow={() => {
-              console.log('Showing voice popup in main window...')
-              setFloatingWindowVisible(true)
-            }}
-          />
+      <SignedIn>
+        <div className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none ${floatingWindowVisible ? 'block' : 'hidden'}`}>
+          <div className="pointer-events-auto">
+            <FloatingVoiceWidget
+              isListening={isListening}
+              isProcessing={isProcessing}
+              audioLevel={audioLevel}
+              onCancel={() => {
+                setIsListening(false)
+                setFloatingWindowVisible(false)
+                stopRecording()
+              }}
+              onStartRecording={startRecording}
+              onStopRecording={stopRecording}
+              onShow={() => {
+                console.log('Showing voice popup in main window...')
+                setFloatingWindowVisible(true)
+              }}
+            />
+          </div>
         </div>
-      </div>
+      </SignedIn>
     </div>
   )
 }

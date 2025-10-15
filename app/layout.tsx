@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Geist_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Titlebar } from "@/components/titlebar";
 import "./globals.css";
 
@@ -68,14 +69,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body
-        className={`${editorsNote.variable} ${geistMono.variable} antialiased`}
-        suppressHydrationWarning
-      >
-        <Titlebar />
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className="dark" suppressHydrationWarning>
+        <body
+          className={`${editorsNote.variable} ${geistMono.variable} antialiased`}
+          suppressHydrationWarning
+        >
+          <Titlebar />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
