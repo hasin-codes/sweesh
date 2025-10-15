@@ -1,6 +1,7 @@
 "use client"
 
-import { Trash2, Copy } from "lucide-react"
+import { useState } from "react"
+import { Trash2, Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
@@ -16,12 +17,19 @@ interface TranscriptionCardProps {
 
 export function TranscriptionCard({ id, file, text, date, onDelete, onClick }: TranscriptionCardProps) {
   const { toast } = useToast()
+  const [isCopied, setIsCopied] = useState(false)
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation()
     try {
       await navigator.clipboard.writeText(text)
+      setIsCopied(true)
       toast({ title: "Copied", description: "Transcription copied to clipboard." })
+      
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setIsCopied(false)
+      }, 2000)
     } catch {
       toast({ title: "Copy failed", description: "Could not copy to clipboard." })
     }
@@ -68,9 +76,18 @@ export function TranscriptionCard({ id, file, text, date, onDelete, onClick }: T
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="default" size="sm" className="h-8 text-xs" onClick={handleCopy}>
-              <Copy className="w-3.5 h-3.5 mr-1.5" />
-              Copy
+            <Button 
+              variant="default" 
+              size="sm" 
+              className={`h-8 text-xs transition-all duration-200 ${isCopied ? 'bg-green-500 hover:bg-green-600' : ''}`}
+              onClick={handleCopy}
+            >
+              {isCopied ? (
+                <Check className="w-3.5 h-3.5 mr-1.5 animate-pulse" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 mr-1.5" />
+              )}
+              {isCopied ? 'Copied!' : 'Copy'}
             </Button>
             {onDelete && (
               <Button
