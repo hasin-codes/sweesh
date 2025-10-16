@@ -113,6 +113,12 @@ export default function Home() {
 
     mediaRecorder.start(100)
     setIsListening(true)
+    
+    // Play recording start sound
+    const audio = new Audio('/sound/active.mp3')
+    audio.volume = 0.7
+    audio.play().catch(console.error)
+    
     await showVoicePopup()
 
     // Setup analyser for audio level visualization
@@ -252,7 +258,7 @@ export default function Home() {
     <div className="relative min-h-screen bg-background">
       <Topbar onSettings={() => setShowSettings(true)} onAddRecording={handleAddRecording} />
 
-      <main className="max-w-6xl mx-auto pl-6 pr-6 pt-32 pb-8">
+      <main className="max-w-6xl mx-auto pl-20 pr-6 pt-32 pb-8">
         <SignedIn>
           {isOnboardingComplete ? (
             <>
