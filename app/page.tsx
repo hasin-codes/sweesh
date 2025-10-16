@@ -21,6 +21,7 @@ export default function Home() {
   const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false)
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(false)
   const [selectedTranscription, setSelectedTranscription] = useState<number | null>(null)
+  const [soundStarted, setSoundStarted] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const audioContextRef = useRef<AudioContext | null>(null)
@@ -115,9 +116,20 @@ export default function Home() {
     mediaRecorder.start(100)
     setIsListening(true)
     
-    // Play recording start sound
+    // Play recording start sound and set sound state when it actually starts
     const audio = new Audio('/sound/active.mp3')
     audio.volume = 0.7
+    
+    // Set sound started when audio actually begins playing
+    audio.addEventListener('play', () => {
+      setSoundStarted(true)
+    })
+    
+    // Reset sound state when audio ends
+    audio.addEventListener('ended', () => {
+      setSoundStarted(false)
+    })
+    
     audio.play().catch(console.error)
     
     await showVoicePopup()
@@ -253,11 +265,12 @@ export default function Home() {
   const handleCancel = () => {
     setIsListening(false)
     setIsProcessing(false)
+    setSoundStarted(false)
   }
 
   return (
     <div className="relative min-h-screen bg-background">
-      <AuroraBorder active={isListening} audioLevel={audioLevel} />
+      <AuroraBorder active={soundStarted} audioLevel={audioLevel} />
       <Topbar onSettings={() => setShowSettings(true)} onAddRecording={handleAddRecording} />
 
       <main className="max-w-6xl mx-auto pl-20 pr-6 pt-32 pb-8">
