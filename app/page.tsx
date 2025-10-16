@@ -7,6 +7,7 @@ import { TranscriptionModal } from "@/components/transcription-modal"
 import { SettingsModal } from "@/components/settings-modal"
 import { OnboardingModal } from "@/components/onboarding-modal"
 import { FloatingVoiceWidget } from "@/components/floating-voice-widget"
+import { AuroraBorder } from "@/components/aurora-border"
 import { useToast } from "@/hooks/use-toast"
 import { SettingsStore } from "@/lib/settings-store"
 import useVoiceStore from "@/lib/voice-store"
@@ -256,6 +257,7 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen bg-background">
+      <AuroraBorder active={isListening} audioLevel={audioLevel} />
       <Topbar onSettings={() => setShowSettings(true)} onAddRecording={handleAddRecording} />
 
       <main className="max-w-6xl mx-auto pl-20 pr-6 pt-32 pb-8">
