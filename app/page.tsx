@@ -270,7 +270,7 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen bg-background">
-      <AuroraBorder active={soundStarted} audioLevel={audioLevel} />
+      <AuroraBorder active={isListening} audioLevel={audioLevel} />
       <Topbar onSettings={() => setShowSettings(true)} onAddRecording={handleAddRecording} />
 
       <main className="max-w-6xl mx-auto pl-20 pr-6 pt-32 pb-8">
