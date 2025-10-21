@@ -2,14 +2,14 @@
 
 import { useAuth } from '@clerk/nextjs'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Loader2, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
 
 type AuthStatus = 'loading' | 'success' | 'error' | 'not-logged-in' | 'redirecting'
 
-function DesktopAuthContent() {
+export default function DesktopAuthPage() {
   const { isSignedIn, getToken } = useAuth()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -101,8 +101,7 @@ function DesktopAuthContent() {
   }
   
   function handleDownload() {
-    // Replace with actual download URL
-    window.open('https://sweesh.app/download', '_blank')
+    window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v0.0.5/Sweesh_Setup_0.0.5.exe', '_blank')
   }
   
   return (
@@ -184,20 +183,5 @@ function DesktopAuthContent() {
         </div>
       </div>
     </div>
-  )
-}
-
-export default function DesktopAuthPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
-          <h1 className="text-2xl font-bold text-foreground mt-4">Loading...</h1>
-        </div>
-      </div>
-    }>
-      <DesktopAuthContent />
-    </Suspense>
   )
 }

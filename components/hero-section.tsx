@@ -1,5 +1,5 @@
+'use client'
 import React from 'react'
-import Link from 'next/link'
 import { ArrowDown, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
@@ -52,9 +52,13 @@ export default function HeroSection() {
                         <div className="mx-auto max-w-7xl px-6">
                             <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0 relative">
                                 <AnimatedGroup variants={transitionVariants}>
-                                    <Link
-                                        href="#download"
-                                        className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950">
+                                    <a
+                                        href="https://github.com/hasin-codes/sweesh.exe/releases/download/v0.0.5/Sweesh_Setup_0.0.5.exe"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v0.0.5/Sweesh_Setup_0.0.5.exe', '_blank');
+                                        }}
+                                        className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950 cursor-pointer">
                                         <Download className="size-4" />
                                         <span className="text-foreground text-sm">Download Version 1.0.8</span>
                                         <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
@@ -69,7 +73,7 @@ export default function HeroSection() {
                                                 </span>
                                             </div>
                                         </div>
-                                    </Link>
+                                    </a>
                                 </AnimatedGroup>
 
                                 
@@ -109,13 +113,11 @@ export default function HeroSection() {
                                         key={1}
                                         className="bg-foreground/10 rounded-[calc(var(--radius-xl)+0.125rem)] border p-0.5">
                                         <Button
-                                            asChild
                                             size="lg"
-                                            className="rounded-xl px-5 text-base">
-                                            <Link href="#download">
-                                                <Download className="mr-2 h-4 w-4" />
-                                                <span className="text-nowrap">Download Now</span>
-                                            </Link>
+                                            className="rounded-xl px-5 text-base"
+                                            onClick={() => window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v0.0.5/Sweesh_Setup_0.0.5.exe', '_blank')}>
+                                            <Download className="mr-2 h-4 w-4" />
+                                            <span className="text-nowrap">Download Now</span>
                                         </Button>
                                     </div>
                                 </AnimatedGroup>
