@@ -1,5 +1,5 @@
 {
-  "name": "sweesh",
+  "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -79,15 +79,5 @@
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
     "typescript": "^5"
-  },
-  "resolutions": {
-    "vaul/react": "19.1.0",
-    "vaul/react-dom": "19.1.0"
-  },
-  "overrides": {
-    "vaul": {
-      "react": "19.1.0",
-      "react-dom": "19.1.0"
-    }
   }
 }
