@@ -2,14 +2,14 @@
 
 import { useAuth } from '@clerk/nextjs'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Loader2, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
 
 type AuthStatus = 'loading' | 'success' | 'error' | 'not-logged-in' | 'redirecting'
 
-export default function DesktopAuthPage() {
+function DesktopAuthContent() {
   const { isSignedIn, getToken } = useAuth()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -184,5 +184,20 @@ export default function DesktopAuthPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function DesktopAuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-md text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
+          <h1 className="text-2xl font-bold text-foreground mt-4">Loading...</h1>
+        </div>
+      </div>
+    }>
+      <DesktopAuthContent />
+    </Suspense>
   )
 }
