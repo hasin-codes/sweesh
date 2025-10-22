@@ -104,7 +104,7 @@ function DesktopAuthContent() {
   }
   
   function handleDownload() {
-    window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.2/Sweesh-Setup-1.1.2.exe', '_blank')
+    window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.3.0/Sweesh-Setup-1.3.0.exe', '_blank')
   }
   
   return (
