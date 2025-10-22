@@ -1,0 +1,16 @@
+# Security Contact Information
+# Sweesh - Voice to Text Application
+# Last Updated: October 22, 2025
+
+Contact: mailto:hasin.innit@gmail.com
+Expires: 2026-10-22T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://sweesh.vercel.app/.well-known/security.txt
+
+# Security Policy
+# We take security seriously. If you discover a security vulnerability, please report it to us.
+# We appreciate your help in keeping Sweesh secure.
+
+# Acknowledgments
+# Thank you to all security researchers who help make Sweesh more secure.
+

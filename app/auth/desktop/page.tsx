@@ -88,7 +88,10 @@ function DesktopAuthContent() {
       }, 1500)
       
     } catch (error) {
-      console.error('Desktop auth error:', error)
+      // Only log errors in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Desktop auth error:', error)
+      }
       setStatus('error')
       setErrorMessage('An unexpected error occurred. Please try again.')
     }

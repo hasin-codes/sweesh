@@ -26,7 +26,7 @@ export default function DocsPage() {
               </div>
             </div>
             <Button asChild variant="outline" className="select-none">
-              <Link href="https://github.com/hasin-codes/sweesh.exe/readme.md" target="_blank">
+              <Link href="https://github.com/hasin-codes/sweesh.exe/readme.md" target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="mr-2 h-4 w-4" />
                 View Docs
               </Link>

@@ -141,11 +141,13 @@ function GroqUsageSection() {
           </CardHeader>
           <CardContent>
             <div className="w-full h-96 border rounded-lg overflow-hidden">
+              {/* Security Note: iframe sandbox attributes limited to minimum required permissions */}
               <iframe
                 src="https://console.groq.com/dashboard/usage?tab=cost"
                 className="w-full h-full"
                 title="Groq Cost Usage"
-                sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                sandbox="allow-same-origin allow-scripts allow-forms"
+                referrerPolicy="strict-origin-when-cross-origin"
               />
             </div>
           </CardContent>
@@ -164,11 +166,13 @@ function GroqUsageSection() {
           </CardHeader>
           <CardContent>
             <div className="w-full h-96 border rounded-lg overflow-hidden">
+              {/* Security Note: iframe sandbox attributes limited to minimum required permissions */}
               <iframe
                 src="https://console.groq.com/dashboard/usage?tab=activity"
                 className="w-full h-full"
                 title="Groq Activity Usage"
-                sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                sandbox="allow-same-origin allow-scripts allow-forms"
+                referrerPolicy="strict-origin-when-cross-origin"
               />
             </div>
           </CardContent>
@@ -217,7 +221,7 @@ function DocsContent() {
               </div>
             </div>
             <Button asChild variant="outline" className="select-none">
-              <Link href="https://github.com/hasin-codes/sweesh.exe/readme.md" target="_blank">
+              <Link href="https://github.com/hasin-codes/sweesh.exe/readme.md" target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="mr-2 h-4 w-4" />
                 View Docs
               </Link>
