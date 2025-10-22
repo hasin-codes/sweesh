@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 const getSiteUrl = (): string => {
   const envUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()
-  if (!envUrl || envUrl === '' || envUrl === 'http://localhost:3000') {
-    return 'http://localhost:3000'
+  if (!envUrl || envUrl === '' || envUrl === 'https://sweesh.vercel.app') {
+    return 'https://sweesh.vercel.app'
   }
   return envUrl
 }
