@@ -1,11 +1,18 @@
 'use client'
 import Link from 'next/link'
-import { Menu, X, Download } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import React from 'react'
 import { cn } from '@/lib/utils'
 import { SignedIn, SignedOut } from '@clerk/nextjs'
 import { DesignerModal } from '@/components/designer-modal'
+
+// Windows Icon Component
+const WindowsIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+        <path d="M3 5.5L11 4.5V11.5H3V5.5ZM11 12.5V19.5L3 18.5V12.5H11ZM12 19.7L21 21V12.5H12V19.7ZM21 11.5V3L12 4.3V11.5H21Z" />
+    </svg>
+)
 
 const menuItems = [
     { name: 'Features', href: '#features' },
@@ -110,9 +117,9 @@ export const HeroHeader = () => {
                                     <Button
                                         size="sm"
                                         className={cn(isScrolled ? 'lg:inline-flex' : 'hidden', 'select-none')}
-                                        onClick={() => window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.0/Sweesh-Setup-1.1.0.exe', '_blank')}>
-                                        <Download className="mr-2 h-4 w-4" />
-                                        <span>Download Now</span>
+                                        onClick={() => window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.1/Sweesh-Setup-1.1.1.exe', '_blank')}>
+                                        <WindowsIcon className="mr-2 h-4 w-4" />
+                                        <span>Download for Windows</span>
                                     </Button>
                                 </div>
                             </div>

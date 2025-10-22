@@ -1,11 +1,18 @@
 'use client'
 import React from 'react'
-import { ArrowDown, Download } from 'lucide-react'
+import { ArrowDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { TextEffect } from '@/components/ui/text-effect'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { HeroHeader } from './header'
+
+// Windows Icon Component
+const WindowsIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+        <path d="M3 5.5L11 4.5V11.5H3V5.5ZM11 12.5V19.5L3 18.5V12.5H11ZM12 19.7L21 21V12.5H12V19.7ZM21 11.5V3L12 4.3V11.5H21Z" />
+    </svg>
+)
 
 
 const transitionVariants = {
@@ -53,14 +60,14 @@ export default function HeroSection() {
                             <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0 relative">
                                 <AnimatedGroup variants={transitionVariants}>
                                     <a
-                                        href="https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.0/Sweesh-Setup-1.1.0.exe"
+                                        href="https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.1/Sweesh-Setup-1.1.1.exe"
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.0/Sweesh-Setup-1.1.0.exe', '_blank');
+                                            window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.1/Sweesh-Setup-1.1.1.exe', '_blank');
                                         }}
                                         className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950 cursor-pointer">
-                                        <Download className="size-4" />
-                                        <span className="text-foreground text-sm">Download Version 1.1.0</span>
+                                        <WindowsIcon className="size-4" />
+                                        <span className="text-foreground text-sm">Download for Windows</span>
                                         <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
 
                                         <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
@@ -115,9 +122,9 @@ export default function HeroSection() {
                                         <Button
                                             size="lg"
                                             className="rounded-xl px-5 text-base"
-                                            onClick={() => window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.0/Sweesh-Setup-1.1.0.exe', '_blank')}>
-                                            <Download className="mr-2 h-4 w-4" />
-                                            <span className="text-nowrap">Download Now</span>
+                                            onClick={() => window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.1/Sweesh-Setup-1.1.1.exe', '_blank')}>
+                                            <WindowsIcon className="mr-2 h-4 w-4" />
+                                            <span className="text-nowrap">Download for Windows</span>
                                         </Button>
                                     </div>
                                 </AnimatedGroup>
