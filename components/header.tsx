@@ -110,7 +110,7 @@ export const HeroHeader = () => {
                                     <Button
                                         size="sm"
                                         className={cn(isScrolled ? 'lg:inline-flex' : 'hidden', 'select-none')}
-                                        onClick={() => window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.0.9/Sweesh_Setup_1.0.9.exe', '_blank')}>
+                                        onClick={() => window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.0.9/Sweesh-Setup-1.0.9.exe', '_blank')}>
                                         <Download className="mr-2 h-4 w-4" />
                                         <span>Download Now</span>
                                     </Button>
