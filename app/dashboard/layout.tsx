@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Settings, LogOut, Clock, Package, CreditCard, FileText, Mail } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -11,6 +12,7 @@ interface DashboardLayoutProps {
 
 function Sidebar() {
   const pathname = usePathname()
+  const { user } = useUser()
   
   const menuItems = [
     { id: 'overview', label: 'Overview', icon: Clock, href: '/dashboard' },
@@ -26,13 +28,13 @@ function Sidebar() {
         {/* User Info */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-foreground">Hasin Raiyan</h3>
+            <h3 className="font-semibold text-foreground">{user?.fullName || user?.firstName || 'User'}</h3>
             <div className="flex gap-2">
               <Settings className="h-4 w-4 text-muted-foreground" />
               <div className="h-4 w-4 bg-muted-foreground rounded-sm"></div>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground">Free Plan • raiyanhasin902@gmail.com</p>
+          <p className="text-sm text-muted-foreground">Free Plan • {user?.primaryEmailAddress?.emailAddress || 'No email'}</p>
         </div>
 
         {/* Navigation */}
