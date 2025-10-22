@@ -18,7 +18,7 @@ export default function Pricing() {
                             <div>
                                 <h2 className="font-medium">Free</h2>
                                 <span className="my-3 block text-2xl font-semibold">$0 / mo</span>
-                                <p className="text-muted-foreground text-sm">Per editor</p>
+                                
                             </div>
 
                             <Button
@@ -54,7 +54,7 @@ export default function Pricing() {
                                 <div>
                                     <h2 className="font-medium">Enterprise</h2>
                                     <span className="my-3 block text-2xl font-semibold">$599 / mo</span>
-                                    <p className="text-muted-foreground text-sm">Per editor</p>
+                                    
                                 </div>
 
                                 <Button

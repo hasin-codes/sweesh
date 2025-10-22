@@ -20,9 +20,7 @@ function OverviewContent() {
               <CardDescription className="text-lg font-semibold text-foreground">
                 $0 / mo
               </CardDescription>
-              <CardDescription className="text-sm text-muted-foreground">
-                Per editor
-              </CardDescription>
+              
             </CardHeader>
             <CardContent className="pt-0">
               <div className="w-full mb-3 p-2 bg-muted rounded-md text-center text-sm text-muted-foreground">
@@ -45,13 +43,11 @@ function OverviewContent() {
               <div className="w-full h-full bg-gradient-to-r from-red-500 to-orange-500"></div>
             </div>
             <CardHeader className="pb-3 relative z-10">
-              <CardTitle className="text-lg">Pro</CardTitle>
+              <CardTitle className="text-lg">Enterprise</CardTitle>
               <CardDescription className="text-lg font-semibold text-foreground">
-                $19 / mo
+                $599 / mo
               </CardDescription>
-              <CardDescription className="text-sm text-muted-foreground">
-                Per editor
-              </CardDescription>
+              
             </CardHeader>
             <CardContent className="pt-0 relative z-10">
               <Button className="w-full mb-3 bg-primary hover:bg-primary/90 text-primary-foreground select-none">
