@@ -53,14 +53,14 @@ export default function HeroSection() {
                             <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0 relative">
                                 <AnimatedGroup variants={transitionVariants}>
                                     <a
-                                        href="https://github.com/hasin-codes/sweesh.exe/releases/download/v1.0.9/Sweesh-Setup-1.0.9.exe"
+                                        href="https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.0/Sweesh-Setup-1.1.0.exe"
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.0.9/Sweesh-Setup-1.0.9.exe', '_blank');
+                                            window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.0/Sweesh-Setup-1.1.0.exe', '_blank');
                                         }}
                                         className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950 cursor-pointer">
                                         <Download className="size-4" />
-                                        <span className="text-foreground text-sm">Download Version 1.0.9</span>
+                                        <span className="text-foreground text-sm">Download Version 1.1.0</span>
                                         <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
 
                                         <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
@@ -115,7 +115,7 @@ export default function HeroSection() {
                                         <Button
                                             size="lg"
                                             className="rounded-xl px-5 text-base"
-                                            onClick={() => window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.0.9/Sweesh-Setup-1.0.9.exe', '_blank')}>
+                                            onClick={() => window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.0/Sweesh-Setup-1.1.0.exe', '_blank')}>
                                             <Download className="mr-2 h-4 w-4" />
                                             <span className="text-nowrap">Download Now</span>
                                         </Button>
