@@ -52,15 +52,15 @@ export default function Pricing() {
                         <div className="relative z-10 grid gap-6 sm:grid-cols-2">
                             <div className="space-y-4">
                                 <div>
-                                    <h2 className="font-medium">Pro</h2>
-                                    <span className="my-3 block text-2xl font-semibold">$19 / mo</span>
+                                    <h2 className="font-medium">Enterprise</h2>
+                                    <span className="my-3 block text-2xl font-semibold">$599 / mo</span>
                                     <p className="text-muted-foreground text-sm">Per editor</p>
                                 </div>
 
                                 <Button
                                     asChild
                                     className="w-full">
-                                    <Link href="mailto:hasin.innit@gmail.com?subject=Inquire about Pro Plan&body=Hi, I'm interested in learning more about the Pro plan features.">
+                                    <Link href="mailto:hasin.innit@gmail.com?subject=Inquire about Enterprise Plan&body=Hi, I'm interested in learning more about the Enterprise plan features.">
                                         <Mail className="mr-2 h-4 w-4" />
                                         <span>Inquire Now</span>
                                     </Link>

@@ -26,10 +26,9 @@ export default function StatsSection() {
                     </div>
                     <div className="relative">
                         <blockquote className="border-l-4 pl-4">
-                            <p>Using Sweesh means using a tool backed by the same technology trusted by thousands of developers and creators worldwide. It’s powered by Whisper and Groq - the engines behind fast, accurate, and private transcription.</p>
-                            <div className="mt-6 space-y-3">
+                            <p>Using Sweesh means using a tool backed by the same technology trusted by thousands of developers and creators worldwide. It's powered by Whisper and Groq - the engines behind fast, accurate, and private transcription.</p>
+                            <div className="mt-6">
                                 <cite className="block font-medium">Hasin Raiyan, Founder</cite>
-                                <img className="h-5 w-fit dark:invert" src="/icons/nvidia.svg" alt="Sweesh" height="20" width="auto" />
                             </div>
                         </blockquote>
                     </div>

@@ -17,6 +17,10 @@ import OpenAI from "@/components/kokonutui/open-ai";
 import OpenAIDark from "@/components/kokonutui/open-ai-dark";
 import MistralAI from "@/components/kokonutui/mistral";
 import DeepSeek from "@/components/kokonutui/deepseek";
+import Whisper from "@/components/kokonutui/whisper";
+import Groq from "@/components/kokonutui/groq";
+import Clerk from "@/components/kokonutui/clerk";
+import ShieldLock from "@/components/kokonutui/shield-lock";
 import { cn } from "@/lib/utils";
 import {
     Mic,
@@ -105,9 +109,9 @@ const bentoItems: BentoItem[] = [
     },
     {
         id: "partners",
-        title: "Trusted partners",
+        title: "Used technologies",
         description:
-            "Working with the leading AI and cloud providers to deliver cutting-edge solutions",
+            "Built with industry-leading tools for fast, secure, and accurate transcription",
         icons: true,
         href: "#",
         feature: "icons",
@@ -252,35 +256,34 @@ const IconsFeature = () => {
             </motion.div>
             <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 group transition-all duration-300 hover:border-neutral-300 dark:hover:border-neutral-600">
                 <div className="relative w-8 h-8 flex items-center justify-center">
-                    <Anthropic className="w-7 h-7 dark:hidden transition-transform " />
-                    <AnthropicDark className="w-7 h-7 hidden dark:block transition-transform " />
+                    <Whisper className="w-7 h-7 transition-transform " />
                 </div>
                 <span className="text-xs font-medium text-center text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
-                    Anthropic
+                    Whisper
                 </span>
             </motion.div>
             <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 group transition-all duration-300 hover:border-neutral-300 dark:hover:border-neutral-600">
                 <div className="relative w-8 h-8 flex items-center justify-center">
-                    <Google className="w-7 h-7 transition-transform " />
+                    <Groq className="w-7 h-7 transition-transform " />
                 </div>
                 <span className="text-xs font-medium text-center text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
-                    Google
+                    Groq
                 </span>
             </motion.div>
             <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 group transition-all duration-300 hover:border-neutral-300 dark:hover:border-neutral-600">
                 <div className="relative w-8 h-8 flex items-center justify-center">
-                    <MistralAI className="w-7 h-7 transition-transform " />
+                    <Clerk className="w-7 h-7 transition-transform " />
                 </div>
                 <span className="text-xs font-medium text-center text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
-                    Mistral
+                    Clerk
                 </span>
             </motion.div>
             <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 group transition-all duration-300 hover:border-neutral-300 dark:hover:border-neutral-600">
                 <div className="relative w-8 h-8 flex items-center justify-center">
-                    <DeepSeek className="w-7 h-7 transition-transform " />
+                    <ShieldLock className="w-7 h-7 transition-transform " />
                 </div>
                 <span className="text-xs font-medium text-center text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
-                    DeepSeek
+                    OS Encrypt
                 </span>
             </motion.div>
             <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 group transition-all duration-300 hover:border-neutral-300 dark:hover:border-neutral-600">
