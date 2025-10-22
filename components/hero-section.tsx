@@ -60,10 +60,10 @@ export default function HeroSection() {
                             <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0 relative">
                                 <AnimatedGroup variants={transitionVariants}>
                                     <a
-                                        href="https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.1/Sweesh-Setup-1.1.1.exe"
+                                        href="https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.2/Sweesh-Setup-1.1.2.exe"
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.1/Sweesh-Setup-1.1.1.exe', '_blank');
+                                            window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.2/Sweesh-Setup-1.1.2.exe', '_blank');
                                         }}
                                         className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950 cursor-pointer">
                                         <WindowsIcon className="size-4" />
@@ -122,7 +122,7 @@ export default function HeroSection() {
                                         <Button
                                             size="lg"
                                             className="rounded-xl px-5 text-base"
-                                            onClick={() => window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.1/Sweesh-Setup-1.1.1.exe', '_blank')}>
+                                            onClick={() => window.open('https://github.com/hasin-codes/sweesh.exe/releases/download/v1.1.2/Sweesh-Setup-1.1.2.exe', '_blank')}>
                                             <WindowsIcon className="mr-2 h-4 w-4" />
                                             <span className="text-nowrap">Download for Windows</span>
                                         </Button>
