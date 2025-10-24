@@ -598,7 +598,6 @@ const BentoCard = ({ item }: { item: BentoItem }) => {
     function handleMouseLeave() {
         x.set(0);
         y.set(0);
-        setIsHovered(false);
     }
 
     return (
