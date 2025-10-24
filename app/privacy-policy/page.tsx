@@ -122,7 +122,7 @@ export default function PrivacyPolicy() {
                             <div className="mb-10">
                                 <h2 className="text-2xl font-bold mb-4 text-foreground">2. Data Storage and Processing</h2>
                                 <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                                    <li>Sweesh processes and stores user data locally on the user's device.</li>
+                                    <li>Sweesh processes and stores user data locally on the user&apos;s device.</li>
                                     <li>We do not transmit, share, or sell personal data to any third party.</li>
                                     <li>Authentication data handled by Clerk is stored and processed according to their Privacy Policy. Sweesh does not store any user passwords or raw credentials.</li>
                                 </ul>
@@ -170,7 +170,7 @@ export default function PrivacyPolicy() {
                                 </p>
                                 <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                                     <li>Access and review your account details via Clerk</li>
-                                    <li>Delete your account at any time through Clerk's dashboard or by contacting support</li>
+                                    <li>Delete your account at any time through Clerk&apos;s dashboard or by contacting support</li>
                                     <li>Request data deletion or account closure directly from us at <a href="mailto:hasin.innit@gmail.com" className="text-primary hover:underline">hasin.innit@gmail.com</a></li>
                                 </ul>
                                 <p className="text-muted-foreground leading-relaxed mt-3">
@@ -190,7 +190,7 @@ export default function PrivacyPolicy() {
 
                             {/* Section 7 */}
                             <div className="mb-10">
-                                <h2 className="text-2xl font-bold mb-4 text-foreground">7. Children's Privacy</h2>
+                                <h2 className="text-2xl font-bold mb-4 text-foreground">7. Children&apos;s Privacy</h2>
                                 <p className="text-muted-foreground leading-relaxed">
                                     Sweesh is not directed toward children under the age of 13. We do not knowingly collect or process personal data from minors. If such data is found, it will be immediately deleted.
                                 </p>
@@ -208,7 +208,7 @@ export default function PrivacyPolicy() {
                             <div className="mb-10">
                                 <h2 className="text-2xl font-bold mb-4 text-foreground">9. Changes to This Policy</h2>
                                 <p className="text-muted-foreground leading-relaxed">
-                                    Sweesh reserves the right to modify or update this Privacy Policy at any time. Changes will be reflected with a revised "Last Updated" date. Your continued use of Sweesh constitutes acceptance of these updates.
+                                    Sweesh reserves the right to modify or update this Privacy Policy at any time. Changes will be reflected with a revised &quot;Last Updated&quot; date. Your continued use of Sweesh constitutes acceptance of these updates.
                                 </p>
                             </div>
 
