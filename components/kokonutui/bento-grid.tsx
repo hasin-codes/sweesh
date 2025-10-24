@@ -606,7 +606,6 @@ const BentoCard = ({ item }: { item: BentoItem }) => {
             whileHover={{ y: -5 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             className="h-full"
-            onHoverStart={() => setIsHovered(true)}
             onHoverEnd={handleMouseLeave}
             onMouseMove={handleMouseMove}
             style={{
