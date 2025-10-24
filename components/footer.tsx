@@ -14,6 +14,10 @@ const links = [
         href: '#pricing',
     },
     {
+        title: 'Privacy Policy',
+        href: '/privacy-policy',
+    },
+    {
         title: 'Founder',
         href: 'https://hasin.vercel.app',
     },
