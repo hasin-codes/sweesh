@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 const links = [
     {
@@ -31,7 +32,7 @@ export default function FooterSection() {
                     href="/"
                     aria-label="go home"
                     className="mx-auto block size-fit">
-                    <img src="/icons/logo2.svg" alt="Sweesh" className="mx-auto h-5 w-auto" />
+                    <Image src="/icons/logo2.svg" alt="Sweesh" className="mx-auto h-5 w-auto" width={100} height={20} />
                 </Link>
 
                 <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">

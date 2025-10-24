@@ -3,10 +3,8 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 export const EvervaultCard = ({
-  text,
   className,
 }: {
-  text?: string;
   className?: string;
 }) => {
   return (

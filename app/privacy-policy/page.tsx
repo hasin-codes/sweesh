@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import Footer from '@/components/footer'
 import { TextEffect } from '@/components/ui/text-effect'
 import { AnimatedGroup } from '@/components/ui/animated-group'
@@ -38,7 +39,7 @@ export default function PrivacyPolicy() {
                             href="/"
                             aria-label="home"
                             className="flex items-center space-x-2">
-                            <img src="/icons/logo2.svg" alt="Sweesh" className="h-5 w-auto" />
+                            <Image src="/icons/logo2.svg" alt="Sweesh" className="h-5 w-auto" width={100} height={20} />
                         </Link>
                     </div>
                 </div>

@@ -358,7 +358,6 @@ const TypingCodeFeature = ({ text }: { text: string }) => {
     useEffect(() => {
         setDisplayedText("");
         setCurrentIndex(0);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -579,7 +578,6 @@ function AIInput_Voice() {
 }
 
 const BentoCard = ({ item }: { item: BentoItem }) => {
-    const [isHovered, setIsHovered] = useState(false);
     const x = useMotionValue(0);
     const y = useMotionValue(0);
     const rotateX = useTransform(y, [-100, 100], [2, -2]);
