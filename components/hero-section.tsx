@@ -58,20 +58,22 @@ export default function HeroSection() {
 
                         <div className="mx-auto max-w-7xl px-6">
                             <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0 relative">
-                                <a 
-                                    href="https://www.producthunt.com/products/sweesh?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-sweesh" 
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mx-auto inline-block transition-opacity hover:opacity-80"
-                                >
-                                    <img 
-                                        src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1032781&theme=light&t=1762004208610" 
-                                        alt="Sweesh - Capture ideas before your brain moves on | Product Hunt" 
-                                        style={{ width: '250px', height: '54px' }} 
-                                        width="250" 
-                                        height="54" 
-                                    />
-                                </a>
+                                <AnimatedGroup variants={transitionVariants}>
+                                    <a 
+                                        href="https://www.producthunt.com/products/sweesh?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-sweesh" 
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mx-auto inline-block transition-opacity hover:opacity-80"
+                                    >
+                                        <img 
+                                            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1032781&theme=light&t=1762004208610" 
+                                            alt="Sweesh - Capture ideas before your brain moves on | Product Hunt" 
+                                            style={{ width: '250px', height: '54px' }} 
+                                            width="250" 
+                                            height="54" 
+                                        />
+                                    </a>
+                                </AnimatedGroup>
 
                                 
 
